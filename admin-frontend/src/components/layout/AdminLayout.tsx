@@ -99,15 +99,15 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="min-h-screen bg-[#F1F5F9] text-slate-900 flex flex-col font-sans">
       {/* Top Administrative Banner */}
-      <div className="bg-[#070D1E] text-slate-300 text-[11px] font-medium tracking-wider px-4 sm:px-6 py-1.5 flex items-center justify-between border-b border-slate-800">
+      <div className="bg-[#070D1E] text-slate-300 text-xs font-medium tracking-wider px-4 sm:px-6 py-2 flex items-center justify-between border-b border-slate-800">
         <div className="flex items-center gap-2">
-          <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+          <span className="inline-block w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
           <span className="uppercase font-semibold text-slate-200">PolicyPilot • Internal Administrative Console</span>
           <span className="hidden sm:inline-block text-slate-600">|</span>
-          <span className="hidden sm:inline-block text-slate-400 font-mono text-[10px]">INTERNAL SUPERVISORY ACCESS</span>
+          <span className="hidden sm:inline-block text-slate-400 font-mono text-xs">INTERNAL SUPERVISORY ACCESS</span>
         </div>
-        <div className="flex items-center gap-3 text-[10px] text-slate-400 uppercase tracking-wider font-mono">
-          <span className="bg-slate-800 px-2 py-0.5 rounded text-amber-300 border border-amber-500/20">
+        <div className="flex items-center gap-3 text-xs text-slate-400 uppercase tracking-wider font-mono">
+          <span className="bg-slate-800 px-2.5 py-0.5 rounded text-amber-300 border border-amber-500/20">
             NODE: PP-ADMIN-01
           </span>
         </div>
@@ -126,14 +126,14 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             </button>
 
             <Link href="/dashboard" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 font-bold">
+              <div className="w-9 h-9 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 font-bold">
                 <ShieldCheck className="h-5 w-5 text-slate-950" />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-sm tracking-tight text-white flex items-center gap-1.5">
-                  PolicyPilot <span className="text-[10px] font-bold px-1.5 py-0.2 bg-amber-400/20 text-amber-300 border border-amber-400/40 rounded font-mono">ADMIN</span>
+                <span className="font-bold text-base tracking-tight text-white flex items-center gap-2 leading-tight">
+                  PolicyPilot <span className="text-xs font-bold px-2 py-0.5 bg-amber-400/20 text-amber-300 border border-amber-400/40 rounded font-mono">ADMIN</span>
                 </span>
-                <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">
+                <span className="text-xs text-slate-400 font-medium tracking-wide">
                   Central Governance & Supervisory Portal
                 </span>
               </div>
@@ -141,10 +141,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           </div>
 
           {/* Admin User Info & Logout */}
-          <div className="flex items-center gap-3 text-xs">
+          <div className="flex items-center gap-3 text-sm">
             <div className="hidden sm:flex flex-col text-right">
-              <span className="font-semibold text-slate-200">{user?.full_name || "System Administrator"}</span>
-              <span className="text-[10px] font-mono text-amber-400">{user?.email}</span>
+              <span className="font-semibold text-slate-200 text-sm">{user?.full_name || "System Administrator"}</span>
+              <span className="text-xs font-mono text-amber-400">{user?.email}</span>
             </div>
 
             <button
@@ -152,9 +152,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 await logout();
                 router.push("/login");
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-950 hover:text-rose-300 hover:border-rose-700 text-slate-300 text-xs font-semibold border border-slate-700 transition-colors"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-rose-950 hover:text-rose-300 hover:border-rose-700 text-slate-200 text-sm font-semibold border border-slate-700 transition-colors"
             >
-              <LogOut className="h-3.5 w-3.5" />
+              <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline">Sign Out</span>
             </button>
           </div>
@@ -169,15 +169,15 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           isMobileMenuOpen ? "block" : "hidden md:block"
         )}>
           <div className="p-4 border-b border-slate-800">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 font-mono">
               ADMIN CONSOLE
             </p>
           </div>
 
-          <nav className="flex-1 p-3 space-y-4 overflow-y-auto text-xs font-medium">
+          <nav className="flex-1 p-3 space-y-4 overflow-y-auto text-sm font-medium">
             {navSections.map((section) => (
               <div key={section.title} className="space-y-1">
-                <div className="px-3 py-1 text-[10px] font-bold font-mono tracking-wider text-slate-500 uppercase">
+                <div className="px-3 py-1.5 text-xs font-bold font-mono tracking-wider text-slate-400 uppercase">
                   {section.title}
                 </div>
                 {section.items.map((item) => {
@@ -189,10 +189,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                       href={item.href}
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
+                        "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
                         isActive
                           ? "bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold"
-                          : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
+                          : "text-slate-300 hover:text-white hover:bg-slate-800/60"
                       )}
                     >
                       <Icon className={cn("h-4 w-4", isActive ? "text-amber-400" : "text-slate-400")} />
@@ -204,7 +204,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             ))}
           </nav>
 
-          <div className="p-4 border-t border-slate-800 text-[11px] text-slate-500 font-mono">
+          <div className="p-4 border-t border-slate-800 text-xs text-slate-400 font-mono space-y-0.5">
             <div>PORT: 3001</div>
             <div>ROLE: ROLE_ADMIN</div>
           </div>
@@ -217,7 +217,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       </div>
 
       {/* Operational Footer */}
-      <footer className="bg-[#070D1E] border-t border-slate-800 text-slate-500 text-[11px] py-3 px-4 sm:px-6 font-mono">
+      <footer className="bg-[#070D1E] border-t border-slate-800 text-slate-400 text-xs py-3 px-4 sm:px-6 font-mono">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>PolicyPilot Administrative Console v1.0 • Isolated Frontend (:3001)</span>
           <span>FastAPI Backend Connected (:8000)</span>

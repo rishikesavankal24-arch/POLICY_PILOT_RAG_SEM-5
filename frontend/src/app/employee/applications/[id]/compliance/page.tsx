@@ -27,7 +27,6 @@ import {
   HelpCircle,
   Send,
   MessageSquare,
-  Sparkles,
   ClipboardList,
   Save,
   CheckSquare,
@@ -558,7 +557,7 @@ export default function EmployeeComplianceWorkspacePage() {
 
   return (
     <EmployeeLayout>
-      <div className="max-w-7xl mx-auto space-y-6 pb-12">
+      <div className="space-y-6 pb-12">
         {/* Breadcrumb & Top Navigation */}
         <div className="flex items-center gap-2">
           <Link
@@ -687,33 +686,28 @@ export default function EmployeeComplianceWorkspacePage() {
               </div>
             </div>
 
-            {/* M10 Architectural Boundary Notice Banner */}
-            <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-950/40 via-slate-900 to-blue-950/40 border border-emerald-500/30 shadow-sm flex items-start gap-3.5">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
-                <Sparkles className="h-4 w-4" />
-              </div>
-              <div className="space-y-1">
+            {/* Compliance Review Banner */}
+            <div className="p-4 bg-white border border-slate-200 rounded-lg shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-mono font-bold tracking-wider uppercase">
-                    MODULE M10 BOUNDARY: MANUAL COMPLIANCE REVIEW ACTIVE
+                  <h2 className="text-sm font-bold text-slate-900 tracking-tight font-sans">
+                    Compliance Review
+                  </h2>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                    ACTIVE
                   </span>
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed">
-                  Adaptive RAG, hybrid BM25 / vector retrieval, evidence reranking, and automated policy cross-referencing are reserved for <strong className="text-white">Module M10</strong> (currently an integration boundary). This compliance review workspace is strictly human-verified. Checklist evaluations and notes are recorded directly to the internal audit trail.
-                </p>
-                <div className="pt-1.5 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400 font-mono">
-                    Deterministic compliance verification active
-                  </span>
-                  <Link
-                    href="/employee/policies"
-                    target="_blank"
-                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded text-xs font-medium transition-colors"
-                  >
-                    <BookOpen className="h-3.5 w-3.5" />
-                    <span>View Policy Catalog</span>
-                  </Link>
-                </div>
+              </div>
+
+              <div className="shrink-0">
+                <Link
+                  href="/employee/policies"
+                  target="_blank"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-semibold shadow-2xs transition-colors"
+                >
+                  <BookOpen className="h-3.5 w-3.5" />
+                  <span>View Policy Catalogue</span>
+                </Link>
               </div>
             </div>
 
@@ -727,9 +721,6 @@ export default function EmployeeComplianceWorkspacePage() {
                       <h2 className="text-xs font-bold uppercase tracking-wider text-white">
                         Review Readiness & Decision Preparation
                       </h2>
-                      <p className="text-[11px] text-slate-400">
-                        Operational gate before compliance assessment
-                      </p>
                     </div>
                   </div>
 
@@ -835,21 +826,15 @@ export default function EmployeeComplianceWorkspacePage() {
                         <li key={idx}>{reason}</li>
                       ))}
                     </ul>
-                    <p className="text-[11px] text-amber-400/80 italic pt-1 border-t border-amber-500/20">
-                      Resolution guidance: Verify all uploaded documents, complete each compliance checklist item evaluation, and resolve all applicant queries to unlock formal review declaration.
-                    </p>
                   </div>
                 ) : (
-                  <div className="p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/40 space-y-1.5">
+                  <div className="p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/40">
                     <div className="flex items-center gap-2 text-emerald-300">
                       <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
                       <span className="text-xs font-bold uppercase tracking-wider">
                         All Operational Verification Prerequisites Satisfied
                       </span>
                     </div>
-                    <p className="text-xs text-emerald-200/90 leading-relaxed">
-                      All verification documents have been accepted, all 5 compliance checklist points are confirmed, and no open customer queries remain. This application is qualified for formal compliance declaration.
-                    </p>
                   </div>
                 )}
 
@@ -863,8 +848,7 @@ export default function EmployeeComplianceWorkspacePage() {
                       </span>
                     ) : (
                       <span>
-                        Dynamic readiness calculation active
-                        {data.readiness.updated_at && ` • Last updated: ${formatDateTime(data.readiness.updated_at)}`}
+                        {data.readiness.updated_at ? `Last updated: ${formatDateTime(data.readiness.updated_at)}` : ""}
                       </span>
                     )}
                   </div>
@@ -999,9 +983,6 @@ export default function EmployeeComplianceWorkspacePage() {
                         Submitted Verification Documents ({data.documents.length})
                       </h2>
                     </div>
-                    <span className="text-[11px] text-slate-400">
-                      Inspect uploaded evidence files
-                    </span>
                   </div>
 
                   {sortedDocuments.length === 0 ? (
@@ -1089,9 +1070,6 @@ export default function EmployeeComplianceWorkspacePage() {
                         Compliance Verification Checklist ({data.checklist_items.length} Items)
                       </h2>
                     </div>
-                    <span className="text-[11px] text-slate-400 font-mono">
-                      Compliance Review Standards
-                    </span>
                   </div>
 
                   {itemSaveError && (

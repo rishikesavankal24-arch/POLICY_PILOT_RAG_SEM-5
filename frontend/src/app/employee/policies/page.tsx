@@ -146,7 +146,7 @@ export default function EmployeePolicyCatalogPage() {
 
   return (
     <EmployeeLayout>
-      <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="space-y-6">
         
         {/* Header Strip */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
@@ -158,12 +158,9 @@ export default function EmployeePolicyCatalogPage() {
               <h1 className="text-xl font-bold tracking-tight text-white uppercase">
                 Policy Catalog
               </h1>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                ACTIVE REPOSITORY
-              </span>
             </div>
             <p className="text-xs text-slate-400 mt-1 max-w-3xl">
-              Verified institutional repository of active credit policies, underwriting standards, statutory directives, and regulatory frameworks.
+              Active credit policies, underwriting standards, and regulatory frameworks.
             </p>
           </div>
 
@@ -177,19 +174,6 @@ export default function EmployeePolicyCatalogPage() {
               <span>Refresh</span>
             </button>
           </div>
-        </div>
-
-        {/* Security & Access Boundary Banner */}
-        <div className="p-3.5 bg-slate-900/60 border border-slate-800 rounded-xl flex items-center justify-between text-xs text-slate-300">
-          <div className="flex items-center gap-2.5">
-            <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
-            <span>
-              <strong>Verified Employee Workspace:</strong> All documents displayed represent the current <strong>ACTIVE</strong> versions authorized for institutional compliance and underwriting review.
-            </span>
-          </div>
-          <span className="hidden sm:inline-block text-[10px] font-mono text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700">
-            READ-ONLY CATALOG
-          </span>
         </div>
 
         {/* Search & Filter Toolbar */}

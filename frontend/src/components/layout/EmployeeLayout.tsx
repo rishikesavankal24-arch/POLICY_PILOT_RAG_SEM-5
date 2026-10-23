@@ -220,71 +220,55 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
   // Loading state
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#0F172A] flex items-center justify-center text-slate-300">
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center text-slate-600">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-xs uppercase tracking-wider font-mono">Authenticating Institutional Console...</span>
+          <div className="w-8 h-8 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-xs uppercase tracking-wider font-mono text-slate-500">Authenticating Institutional Console...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0B132B] text-slate-100 flex flex-col font-sans">
-      {/* Enterprise Compliance Workflow Utility Strip */}
-      <div className="bg-[#070D1E] text-slate-400 text-[11px] font-medium tracking-wider px-4 sm:px-6 py-1.5 flex items-center justify-between border-b border-slate-800">
-        <div className="flex items-center gap-2.5">
-          <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span className="uppercase font-semibold text-slate-200">PolicyPilot Enterprise • Policy & Underwriting Console</span>
-          <span className="hidden md:inline-block text-slate-500">|</span>
-          <span className="hidden md:inline-block text-slate-400 font-mono text-[10px]">POLICY REVIEW WORKSPACE</span>
-        </div>
-        <div className="flex items-center gap-4 text-[10px] text-slate-400 uppercase tracking-wider">
-          <span className="hidden sm:inline-block bg-slate-800/80 px-2 py-0.5 rounded text-amber-300 border border-amber-500/20 font-mono">
-            INTERNAL AUDIT TRAIL
-          </span>
-          <span className="font-mono text-slate-400">NODE: DL-014-OPS</span>
-        </div>
-      </div>
-
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans">
       {/* Main Enterprise Header */}
-      <header className="sticky top-0 z-40 bg-[#0F172A]/95 backdrop-blur-md border-b border-slate-800 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-2xs">
+        <div className="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           
           {/* Left: Hamburger & Institutional Brand */}
           <div className="flex items-center gap-3">
             <button
               id="employee-nav-hamburger-btn"
               onClick={() => setIsDrawerOpen(true)}
-              className="p-2 -ml-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/40"
+              className="p-2 -ml-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600/30"
               aria-label="Toggle Enterprise Navigation"
             >
               <Menu className="h-5 w-5" />
             </button>
 
             <Link href="/employee/dashboard" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-slate-950 font-bold shadow-md group-hover:scale-105 transition-transform">
-                <Shield className="h-5 w-5 text-slate-950" />
+              <div className="w-8 h-8 rounded bg-[#0F172A] flex items-center justify-center text-white shadow-2xs transition-transform group-hover:scale-102">
+                <Shield className="h-4 w-4 text-blue-400" />
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
-                  PolicyPilot <span className="text-[11px] font-semibold px-1.5 py-0.2 bg-amber-400/10 text-amber-400 border border-amber-400/30 rounded">OPS</span>
+                <span className="font-bold text-base tracking-tight text-slate-900 flex items-center gap-1.5 leading-tight">
+                  PolicyPilot <span className="text-[10px] font-semibold px-1.5 py-0.2 bg-blue-50 text-blue-700 border border-blue-200 rounded">OPS</span>
                 </span>
-                <span className="text-[10px] text-slate-400 font-medium tracking-wide uppercase">
+                <span className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">
                   Institutional Underwriting Desk
                 </span>
               </div>
             </Link>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-1 ml-6 border-l border-slate-800 pl-6">
+            <nav className="hidden lg:flex items-center gap-1 ml-6 border-l border-slate-200 pl-6">
               <Link
                 href="/employee/dashboard"
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                  "px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
                   pathname === "/employee/dashboard"
-                    ? "bg-amber-400/10 text-amber-300 font-semibold"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                    ? "bg-slate-100 text-slate-900 font-semibold border border-slate-200"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                 )}
               >
                 Dashboard
@@ -292,10 +276,10 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
               <Link
                 href="/employee/applications"
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                  "px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
                   pathname?.startsWith("/employee/applications")
-                    ? "bg-amber-400/10 text-amber-300 font-semibold"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                    ? "bg-slate-100 text-slate-900 font-semibold border border-slate-200"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                 )}
               >
                 Applications
@@ -303,22 +287,22 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
               <Link
                 href="/employee/policies"
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5",
+                  "px-3 py-1.5 rounded-md text-xs font-medium transition-colors flex items-center gap-1.5",
                   pathname?.startsWith("/employee/policies")
-                    ? "bg-amber-400/15 text-amber-300 border border-amber-400/30 font-semibold"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                    ? "bg-slate-100 text-slate-900 font-semibold border border-slate-200"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                 )}
               >
-                <BookOpen className="h-3.5 w-3.5 text-amber-400" />
+                <BookOpen className="h-3.5 w-3.5 text-blue-600" />
                 <span>Policy Catalog</span>
               </Link>
               <Link
                 href="/employee/compliance"
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                  "px-3 py-1.5 rounded-md text-xs font-medium transition-colors",
                   pathname === "/employee/compliance"
-                    ? "bg-amber-400/10 text-amber-300 font-semibold"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                    ? "bg-slate-100 text-slate-900 font-semibold border border-slate-200"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                 )}
               >
                 Compliance
@@ -334,12 +318,12 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
               <button
                 id="employee-notification-bell-btn"
                 onClick={() => setIsNotifOpen((prev) => !prev)}
-                className="relative p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/40"
+                className="relative p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600/30"
                 aria-label="Official Alerts"
               >
                 <Bell className="h-5 w-5" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-bold text-slate-950 ring-2 ring-slate-900">
+                  <span className="absolute top-1 right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-blue-600 px-1 text-[10px] font-bold text-white ring-2 ring-white">
                     {unreadCount > 9 ? "9+" : unreadCount}
                   </span>
                 )}
@@ -347,25 +331,25 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
 
               {/* Notification Dropdown */}
               {isNotifOpen && (
-                <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-xl bg-[#1E293B] border border-slate-700 shadow-2xl z-50 overflow-hidden text-slate-100">
-                  <div className="px-4 py-3 bg-[#0F172A] border-b border-slate-700 flex items-center justify-between">
+                <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-lg bg-white border border-slate-200 shadow-xl z-50 overflow-hidden text-slate-900">
+                  <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Official Operational Alerts</span>
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-800">Operational Alerts</span>
                       {unreadCount > 0 && (
-                        <span className="px-1.5 py-0.5 text-[10px] font-bold bg-amber-400/20 text-amber-300 rounded border border-amber-400/30">
+                        <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-blue-50 text-blue-700 rounded border border-blue-200">
                           {unreadCount} NEW
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-800">
+                  <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
                     {isLoadingNotifs ? (
-                      <div className="p-6 text-center text-xs text-slate-400">Loading alerts...</div>
+                      <div className="p-6 text-center text-xs text-slate-500">Loading alerts...</div>
                     ) : notifications.length === 0 ? (
                       <div className="p-8 text-center">
-                        <CheckCircle className="h-8 w-8 text-slate-600 mx-auto mb-2" />
-                        <p className="text-xs font-medium text-slate-300">All queues monitored</p>
+                        <CheckCircle className="h-8 w-8 text-slate-400 mx-auto mb-2" />
+                        <p className="text-xs font-medium text-slate-700">All queues monitored</p>
                         <p className="text-[11px] text-slate-500 mt-0.5">No pending regulatory or operational alerts</p>
                       </div>
                     ) : (
@@ -373,15 +357,15 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
                         <div 
                           key={n.id} 
                           className={cn(
-                            "p-3.5 hover:bg-slate-800/50 transition-colors flex items-start gap-3",
-                            !n.is_read && "bg-slate-800/30"
+                            "p-3.5 hover:bg-slate-50 transition-colors flex items-start gap-3",
+                            !n.is_read ? "bg-blue-50/30" : "bg-white"
                           )}
                         >
                           {getNotifIcon(n.type)}
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-semibold text-slate-200 truncate">{n.title}</p>
-                            <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-2">{n.message}</p>
-                            <span className="text-[10px] text-slate-500 font-mono mt-1 block">
+                            <p className="text-xs font-semibold text-slate-900 truncate">{n.title}</p>
+                            <p className="text-[11px] text-slate-600 mt-0.5 line-clamp-2">{n.message}</p>
+                            <span className="text-[10px] text-slate-400 font-mono mt-1 block">
                               {n.created_at ? new Date(n.created_at).toLocaleDateString() : ""}
                             </span>
                           </div>
@@ -390,10 +374,10 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
                     )}
                   </div>
 
-                  <div className="p-2 bg-[#0F172A] border-t border-slate-700 text-center">
+                  <div className="p-2.5 bg-slate-50 border-t border-slate-200 text-center">
                     <Link
                       href="/employee/notifications"
-                      className="text-xs text-amber-400 hover:text-amber-300 font-medium tracking-wide transition-colors"
+                      className="text-xs text-blue-600 hover:text-blue-800 font-semibold tracking-wide transition-colors"
                       onClick={() => setIsNotifOpen(false)}
                     >
                       View All Operational Alerts →
@@ -408,17 +392,17 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
               <button
                 id="employee-profile-popover-btn"
                 onClick={() => setIsProfileOpen((prev) => !prev)}
-                className="flex items-center gap-2.5 p-1.5 rounded-lg hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-400/40"
+                className="flex items-center gap-2.5 p-1.5 rounded-md hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600/30"
                 aria-label="Officer Profile Menu"
               >
-                <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40 flex items-center justify-center text-xs">
+                <div className="w-8 h-8 rounded bg-slate-100 text-slate-700 font-semibold border border-slate-200 flex items-center justify-center text-xs">
                   {getInitials(user?.full_name, user?.email)}
                 </div>
                 <div className="hidden sm:flex flex-col text-left">
-                  <span className="text-xs font-semibold text-slate-200 truncate max-w-[140px]">
+                  <span className="text-xs font-semibold text-slate-800 truncate max-w-[140px]">
                     {user?.full_name || "Authorized Officer"}
                   </span>
-                  <span className="text-[10px] text-amber-400 font-mono font-medium">
+                  <span className="text-[10px] text-slate-500 font-mono font-medium">
                     OPERATIONS OFFICER
                   </span>
                 </div>
@@ -427,26 +411,26 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
 
               {/* Profile Dropdown */}
               {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-72 rounded-xl bg-[#1E293B] border border-slate-700 shadow-2xl z-50 overflow-hidden text-slate-100">
-                  <div className="p-4 bg-[#0F172A] border-b border-slate-700">
-                    <p className="text-sm font-bold text-white truncate">{user?.full_name || "Authorized Officer"}</p>
-                    <p className="text-xs text-slate-400 truncate font-mono mt-0.5">{user?.email}</p>
+                <div className="absolute right-0 mt-2 w-72 rounded-lg bg-white border border-slate-200 shadow-xl z-50 overflow-hidden text-slate-900">
+                  <div className="p-4 bg-slate-50 border-b border-slate-200">
+                    <p className="text-sm font-bold text-slate-900 truncate">{user?.full_name || "Authorized Officer"}</p>
+                    <p className="text-xs text-slate-500 truncate font-mono mt-0.5">{user?.email}</p>
                     <div className="mt-2.5 flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-400/10 text-amber-400 border border-amber-400/30 uppercase tracking-wider">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-200/70 text-slate-700 border border-slate-300 uppercase tracking-wider">
                         {t("employeePortal.badge")}
                       </span>
                       {isVerifiedEmployee && (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-400/10 text-emerald-400 border border-emerald-400/30 uppercase tracking-wider">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-wider">
                           VERIFIED
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <div className="p-2 space-y-1 text-xs">
+                  <div className="p-1.5 space-y-0.5 text-xs">
                     <Link
                       href="/employee/profile"
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-slate-100 text-slate-700 hover:text-slate-900 transition-colors"
                       onClick={() => setIsProfileOpen(false)}
                     >
                       <User className="h-4 w-4 text-slate-400" />
@@ -455,7 +439,7 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
 
                     <Link
                       href="/employee/organization"
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-slate-100 text-slate-700 hover:text-slate-900 transition-colors"
                       onClick={() => setIsProfileOpen(false)}
                     >
                       <Building2 className="h-4 w-4 text-slate-400" />
@@ -467,27 +451,27 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
                         setIsProfileOpen(false);
                         setIsLanguageModalOpen(true);
                       }}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition-colors text-left"
+                      className="w-full flex items-center justify-between px-3 py-2 rounded-md hover:bg-slate-100 text-slate-700 hover:text-slate-900 transition-colors text-left"
                     >
                       <div className="flex items-center gap-2.5">
                         <Languages className="h-4 w-4 text-slate-400" />
                         <span>{t("employeeNav.language")}</span>
                       </div>
-                      <span className="text-[11px] font-medium text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded">
+                      <span className="text-[11px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                         {languageInfo.nativeName}
                       </span>
                     </button>
 
                     <Link
                       href="/employee/settings"
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-slate-100 text-slate-700 hover:text-slate-900 transition-colors"
                       onClick={() => setIsProfileOpen(false)}
                     >
                       <Settings className="h-4 w-4 text-slate-400" />
                       <span>{t("employeeNav.accountSettings")}</span>
                     </Link>
 
-                    <div className="my-1 border-t border-slate-800"></div>
+                    <div className="my-1 border-t border-slate-100"></div>
 
                     <button
                       onClick={async () => {
@@ -495,7 +479,7 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
                         await logout();
                         router.push("/login");
                       }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition-colors"
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-rose-600 hover:bg-rose-50 transition-colors font-medium"
                     >
                       <LogOut className="h-4 w-4" />
                       <span>{t("employeeNav.signOut")}</span>
@@ -511,9 +495,9 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
 
       {/* Verification Pending Alert for Unapproved Employees */}
       {isPendingVerification && (
-        <div className="bg-amber-950/80 border-b border-amber-600/40 px-4 py-2.5 text-amber-200 text-xs flex items-center justify-between">
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-2.5 text-amber-800 text-xs flex items-center justify-between">
           <div className="flex items-center gap-2 max-w-5xl mx-auto w-full">
-            <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
+            <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
             <span>
               <strong>Officer Verification Pending:</strong> Your institutional onboarding request is awaiting supervisor approval. Application queues and underwriter actions remain restricted until verification is complete.
             </span>
@@ -523,17 +507,17 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
 
       {/* Customer Attempting Access to Employee Portal Notice */}
       {isCustomer && (
-        <div className="bg-rose-950/80 border-b border-rose-600/40 px-4 py-2.5 text-rose-200 text-xs flex items-center justify-between">
+        <div className="bg-rose-50 border-b border-rose-200 px-4 py-2.5 text-rose-800 text-xs flex items-center justify-between">
           <div className="flex items-center justify-between max-w-5xl mx-auto w-full">
             <div className="flex items-center gap-2">
-              <Lock className="h-4 w-4 text-rose-400 shrink-0" />
+              <Lock className="h-4 w-4 text-rose-600 shrink-0" />
               <span>
                 <strong>Restricted Area:</strong> This console is reserved for authorized institutional employees and bank officers.
               </span>
             </div>
             <Link
               href="/dashboard"
-              className="px-2.5 py-1 bg-rose-900/60 hover:bg-rose-800 text-white rounded font-medium text-xs flex items-center gap-1 transition-colors"
+              className="px-2.5 py-1 bg-white hover:bg-slate-50 text-rose-700 border border-rose-200 rounded font-medium text-xs flex items-center gap-1 transition-colors"
             >
               Customer Portal <ArrowRight className="h-3 w-3" />
             </Link>
@@ -546,26 +530,26 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
         <div className="fixed inset-0 z-50 flex">
           {/* Backdrop */}
           <div 
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"
             onClick={() => setIsDrawerOpen(false)}
           ></div>
 
           {/* Drawer Content */}
-          <div className="relative w-72 sm:w-80 bg-[#0F172A] border-r border-slate-800 flex flex-col h-full shadow-2xl z-10">
+          <div className="relative w-72 sm:w-80 bg-white border-r border-slate-200 flex flex-col h-full shadow-2xl z-10 text-slate-900">
             {/* Drawer Header */}
-            <div className="p-4 bg-[#070D1E] border-b border-slate-800 flex items-center justify-between">
+            <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 font-bold">
-                  <Shield className="h-4 w-4 text-slate-950" />
+                <div className="w-8 h-8 rounded bg-[#0F172A] flex items-center justify-center text-white font-bold">
+                  <Shield className="h-4 w-4 text-blue-400" />
                 </div>
                 <div>
-                  <p className="font-bold text-sm text-white">PolicyPilot OPS</p>
-                  <p className="text-[10px] text-amber-400 font-mono uppercase">Banking Operations</p>
+                  <p className="font-bold text-sm text-slate-900">PolicyPilot OPS</p>
+                  <p className="text-[10px] text-slate-500 font-mono uppercase">Banking Operations</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsDrawerOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                className="p-1.5 rounded-md text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 transition-colors"
                 aria-label="Close menu"
               >
                 <X className="h-5 w-5" />
@@ -573,13 +557,13 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
             </div>
 
             {/* Officer Badge Strip in Drawer */}
-            <div className="px-4 py-3 bg-slate-900/90 border-b border-slate-800 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-slate-800 text-amber-400 font-bold flex items-center justify-center text-xs border border-amber-500/20">
+            <div className="px-4 py-3 bg-slate-100/60 border-b border-slate-200 flex items-center gap-3">
+              <div className="w-9 h-9 rounded bg-white text-slate-700 font-semibold flex items-center justify-center text-xs border border-slate-200 shadow-2xs">
                 {getInitials(user?.full_name, user?.email)}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-slate-200 truncate">{user?.full_name || "Authorized Officer"}</p>
-                <p className="text-[10px] text-slate-400 font-mono truncate">{user?.email}</p>
+                <p className="text-xs font-semibold text-slate-900 truncate">{user?.full_name || "Authorized Officer"}</p>
+                <p className="text-[10px] text-slate-500 font-mono truncate">{user?.email}</p>
               </div>
             </div>
 
@@ -598,14 +582,14 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
                         key={itemIdx}
                         href={item.href}
                         className={cn(
-                          "flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all",
+                          "flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all",
                           active
-                            ? "bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold"
-                            : "text-slate-400 hover:text-slate-100 hover:bg-slate-800/60"
+                            ? "bg-blue-50 text-blue-700 border border-blue-200 font-semibold shadow-2xs"
+                            : "text-slate-700 hover:text-slate-950 hover:bg-slate-100"
                         )}
                         onClick={() => setIsDrawerOpen(false)}
                       >
-                        <Icon className={cn("h-4 w-4", active ? "text-amber-400" : "text-slate-400")} />
+                        <Icon className={cn("h-4 w-4", active ? "text-blue-700" : "text-slate-500")} />
                         <span>{item.name}</span>
                       </Link>
                     );
@@ -615,14 +599,14 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
             </div>
 
             {/* Drawer Footer / Sign Out */}
-            <div className="p-4 border-t border-slate-800 bg-[#070D1E] space-y-2">
+            <div className="p-4 border-t border-slate-200 bg-slate-50 space-y-2">
               <button
                 onClick={async () => {
                   setIsDrawerOpen(false);
                   await logout();
                   router.push("/login");
                 }}
-                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-rose-400 hover:bg-rose-950/30 hover:text-rose-300 text-xs font-medium transition-colors"
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-rose-600 hover:bg-rose-50 text-xs font-medium transition-colors"
               >
                 <LogOut className="h-4 w-4" />
                 <span>{t("employeeNav.signOut")}</span>
@@ -636,19 +620,19 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
       {isLanguageModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div 
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs"
             onClick={() => setIsLanguageModalOpen(false)}
           ></div>
 
-          <div className="relative w-full max-w-md rounded-2xl bg-[#1E293B] border border-slate-700 p-6 shadow-2xl z-10 text-slate-100">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-700">
+          <div className="relative w-full max-w-md rounded-xl bg-white border border-slate-200 p-6 shadow-2xl z-10 text-slate-900">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div>
-                <h3 className="text-base font-bold text-white">{t("languageModal.title")}</h3>
-                <p className="text-xs text-slate-400 mt-0.5">{t("languageModal.subtitle")}</p>
+                <h3 className="text-base font-bold text-slate-900">{t("languageModal.title")}</h3>
+                <p className="text-xs text-slate-500 mt-0.5">{t("languageModal.subtitle")}</p>
               </div>
               <button
                 onClick={() => setIsLanguageModalOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                className="p-1.5 rounded-md text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -670,27 +654,27 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
                       }}
                       disabled={isUpdatingLang}
                       className={cn(
-                        "p-3 rounded-xl border text-left transition-all flex flex-col justify-between",
+                        "p-3 rounded-lg border text-left transition-all flex flex-col justify-between",
                         isSelected
-                          ? "border-amber-400/60 bg-amber-500/15 text-white"
-                          : "border-slate-700 bg-slate-800/40 text-slate-300 hover:bg-slate-800 hover:border-slate-600"
+                          ? "border-blue-600 bg-blue-50 text-blue-900 ring-1 ring-blue-600"
+                          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300"
                       )}
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-semibold">{lang.nativeName}</span>
-                        {isSelected && <Check className="h-4 w-4 text-amber-400" />}
+                        {isSelected && <Check className="h-4 w-4 text-blue-600" />}
                       </div>
-                      <span className="text-xs text-slate-400 mt-1">{lang.name}</span>
+                      <span className="text-xs text-slate-500 mt-1">{lang.name}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-700 text-right">
+            <div className="pt-3 border-t border-slate-100 text-right">
               <button
                 onClick={() => setIsLanguageModalOpen(false)}
-                className="px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+                className="px-4 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-md transition-colors"
               >
                 {t("languageModal.close")}
               </button>
@@ -700,19 +684,19 @@ export function EmployeeLayout({ children }: EmployeeLayoutProps) {
       )}
 
       {/* Main Workspace Body */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+      <main className="flex-1 w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {children}
       </main>
 
       {/* Compliance Operations Footer */}
-      <footer className="bg-[#070D1E] border-t border-slate-800 text-slate-500 text-[11px] py-4 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <footer className="bg-white border-t border-slate-200 text-slate-500 text-[11px] py-4">
+        <div className="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-400">PolicyPilot Enterprise Core</span>
+            <span className="font-semibold text-slate-700">PolicyPilot Enterprise Core</span>
             <span>•</span>
             <span>Version 1.4-LTS</span>
             <span>•</span>
-            <span>Prototype Compliance Workflow</span>
+            <span>Institutional Underwriting Desk</span>
           </div>
           <div className="flex items-center gap-4 text-slate-500">
             <span>Policy Review Workspace</span>

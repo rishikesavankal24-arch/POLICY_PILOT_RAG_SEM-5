@@ -52,17 +52,17 @@ export default function EmployeeCompliancePage() {
       <div className="space-y-6">
         
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold tracking-tight text-white uppercase">
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl font-bold tracking-tight text-slate-950 font-sans">
                 Policy Directives & Compliance Console
               </h1>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-400/10 text-amber-400 border border-amber-400/30">
+              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200">
                 RBI GUIDELINE REFERENCE 2024-25
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               Reference banking guidelines, regulatory directives, and policy review rules
             </p>
           </div>
@@ -70,74 +70,37 @@ export default function EmployeeCompliancePage() {
           <div className="flex items-center gap-2">
             <Link
               href="/employee/applications"
-              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm"
+              className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
             >
               <ClipboardList className="h-4 w-4" />
-              <span>Application Queue & Workspaces</span>
+              <span>Application Queue</span>
             </Link>
           </div>
         </div>
 
-        {/* Adaptive RAG / M10-M11 Integration Boundary */}
-        <div className="p-5 bg-[#0F172A] border border-blue-900/40 rounded-xl space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-blue-400">
-              <ShieldCheck className="h-5 w-5" />
-              <h2 className="text-sm font-bold uppercase tracking-wider text-white">
-                Policy Evaluation Architecture (Module M10/M11 Boundary)
-              </h2>
-            </div>
-            <span className="text-[10px] font-mono font-bold bg-blue-500/10 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded">
-              RESERVED INTEGRATION BOUNDARY
-            </span>
-          </div>
-          <p className="text-xs text-slate-300 leading-relaxed">
-            Automated compliance evaluation via Adaptive RAG (hybrid BM25/vector search, reranking, and automated policy cross-referencing) is scheduled for future implementation in <strong className="text-white">Module M10 & M11</strong>. Currently, all compliance checks and audit evaluations in this workspace operate under manual human officer review.
-          </p>
-          <div className="pt-2 flex flex-wrap items-center justify-between gap-3 text-[11px] font-mono text-slate-400">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="bg-slate-900 px-2 py-1 rounded border border-slate-800">
-                CURRENT MODE: MANUAL_OFFICER_REVIEW
-              </span>
-              <span className="bg-slate-900 px-2 py-1 rounded border border-slate-800">
-                AUTOMATED PIPELINE: SCHEDULED_FOR_M10
-              </span>
-              <span className="bg-slate-900 px-2 py-1 rounded border border-slate-800">
-                STATUS: INTEGRATION_BOUNDARY_ACTIVE
-              </span>
-            </div>
-            <Link
-              href="/employee/policies"
-              className="px-3 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded text-xs font-sans font-medium flex items-center gap-1.5 transition-colors"
-            >
-              <BookOpen className="h-3.5 w-3.5" />
-              <span>View Policy Catalog</span>
-            </Link>
-          </div>
-        </div>
 
         {/* Regulatory Directives Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {directives.map((dir, idx) => (
-            <div key={idx} className="p-5 bg-[#0F172A] border border-slate-800 rounded-xl space-y-3 shadow-sm">
+            <div key={idx} className="p-4 bg-white border border-slate-200 rounded-lg space-y-3 shadow-2xs">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">
+                <span className="text-[10px] font-mono font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                   {dir.code}
                 </span>
-                <span className="text-[10px] font-mono font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+                <span className="text-[10px] font-mono font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                   {dir.status}
                 </span>
               </div>
 
               <div>
-                <h3 className="text-sm font-bold text-slate-100">{dir.title}</h3>
-                <p className="text-xs text-slate-400 mt-1 leading-relaxed">{dir.description}</p>
+                <h3 className="text-sm font-bold text-slate-900">{dir.title}</h3>
+                <p className="text-xs text-slate-600 mt-1 leading-relaxed">{dir.description}</p>
               </div>
 
-              <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-mono">
                 <span>CATEGORY: {dir.category}</span>
-                <span className="text-slate-400 flex items-center gap-1">
-                  Enforced <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                <span className="text-slate-600 flex items-center gap-1">
+                  Enforced <CheckCircle2 className="h-3 w-3 text-emerald-600" />
                 </span>
               </div>
             </div>
@@ -145,50 +108,50 @@ export default function EmployeeCompliancePage() {
         </div>
 
         {/* Underwriter Statutory Checklist */}
-        <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
-          <div className="flex items-center gap-2 pb-3 border-b border-slate-800 text-slate-200">
-            <BookOpen className="h-4 w-4 text-amber-400" />
-            <h2 className="text-xs font-bold uppercase tracking-wider">
+        <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-2xs space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-slate-100 text-slate-900">
+            <BookOpen className="h-4 w-4 text-blue-600" />
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900">
               Underwriter Statutory Due Diligence Checklist
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-            <div className="p-3 bg-slate-900/80 border border-slate-800 rounded-lg flex items-start gap-2.5">
-              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-start gap-2.5">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold text-slate-200">Mandatory KYC Verification</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <p className="font-semibold text-slate-900">Mandatory KYC Verification</p>
+                <p className="text-[11px] text-slate-600 mt-0.5">
                   Verify government identity card against national database prior to credit sanction.
                 </p>
               </div>
             </div>
 
-            <div className="p-3 bg-slate-900/80 border border-slate-800 rounded-lg flex items-start gap-2.5">
-              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-start gap-2.5">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold text-slate-200">Income & Debt-to-Income Audit</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <p className="font-semibold text-slate-900">Income & Debt-to-Income Audit</p>
+                <p className="text-[11px] text-slate-600 mt-0.5">
                   Ensure fixed obligation to income ratio (FOIR) remains within institutional thresholds.
                 </p>
               </div>
             </div>
 
-            <div className="p-3 bg-slate-900/80 border border-slate-800 rounded-lg flex items-start gap-2.5">
-              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-start gap-2.5">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold text-slate-200">Conflict of Interest Clearance</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <p className="font-semibold text-slate-900">Conflict of Interest Clearance</p>
+                <p className="text-[11px] text-slate-600 mt-0.5">
                   Strictly confirm that neither applicant nor close relatives are the evaluating officer.
                 </p>
               </div>
             </div>
 
-            <div className="p-3 bg-slate-900/80 border border-slate-800 rounded-lg flex items-start gap-2.5">
-              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-start gap-2.5">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold text-slate-200">Key Fact Statement (KFS) Issuance</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <p className="font-semibold text-slate-900">Key Fact Statement (KFS) Issuance</p>
+                <p className="text-[11px] text-slate-600 mt-0.5">
                   Approved offers must provide an itemized APR disclosure before customer acceptance.
                 </p>
               </div>

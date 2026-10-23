@@ -303,36 +303,36 @@ export default function DocumentsPage() {
   };
 
   return (
-    <AuthenticatedLayout>
+    <AuthenticatedLayout containerClassName="w-[calc(100%-32px)] sm:w-[calc(100%-48px)] max-w-[1600px] px-4 sm:px-6">
       <div className="space-y-6 text-slate-900">
         
         {/* Header Strip */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-5">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold uppercase tracking-tight text-slate-950">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-2xl sm:text-[26px] font-bold uppercase tracking-tight text-slate-950 font-sans">
                 {t("documents.title")}
               </h1>
-              <span className="text-xs font-mono bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">
+              <span className="text-[13px] sm:text-sm font-mono bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded border border-slate-200 font-medium">
                 {filteredDocuments.length} Documents on File
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">{t("documents.subtitle")}</p>
+            <p className="text-[13px] sm:text-sm text-slate-500 mt-1">{t("documents.subtitle")}</p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <button
               onClick={fetchDocuments}
               disabled={isLoading}
-              className="inline-flex items-center gap-1.5 px-3 py-2 bg-white text-slate-700 border border-slate-300 rounded text-xs font-semibold hover:bg-slate-50 transition-colors shadow-xs"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-white text-slate-700 border border-slate-300 rounded-md text-[14px] sm:text-[15px] font-semibold hover:bg-slate-50 transition-colors shadow-xs"
               title="Refresh document records"
             >
-              <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} />
+              <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
               <span className="hidden sm:inline">Refresh</span>
             </button>
             <button 
               onClick={() => { setShowUploadModal(true); setUploadError(null); setSelectedFile(null); }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#0B192C] text-white rounded text-xs font-semibold hover:bg-slate-800 transition-colors shadow-xs"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0B192C] text-white rounded-md text-[14px] sm:text-[15px] font-semibold hover:bg-slate-800 transition-colors shadow-xs"
             >
               <Upload className="h-4 w-4" />
               <span>{t("documents.uploadDocument")}</span>
@@ -341,64 +341,64 @@ export default function DocumentsPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded p-4 text-xs text-red-800 flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-red-600 shrink-0" />
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-[13px] sm:text-sm text-red-800 flex items-center gap-2.5">
+            <AlertTriangle className="h-5 w-5 text-red-600 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {/* Regulatory Advisory Banner */}
-        <div className="p-3.5 bg-slate-50 border border-slate-200 rounded flex items-start gap-2.5 text-xs text-slate-600">
-          <ShieldCheck className="h-4 w-4 text-blue-700 shrink-0 mt-0.5" />
-          <p className="leading-relaxed">
+        <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg flex items-start gap-3 text-[13px] sm:text-sm text-slate-600 leading-relaxed">
+          <ShieldCheck className="h-5 w-5 text-blue-700 shrink-0 mt-0.5" />
+          <p>
             <strong className="text-slate-900 font-semibold">Statutory Compliance Notice:</strong> All documents submitted are securely registered and associated with your loan dossier. Verification and metadata validation are strictly enforced under Module M07.
           </p>
         </div>
 
         {/* Document Ledger Table */}
-        <div className="bg-white border border-slate-200 rounded shadow-xs overflow-hidden">
-          <div className="p-4 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
-            <div className="relative w-full max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+        <div className="bg-white border border-slate-200 rounded-lg shadow-xs overflow-hidden">
+          <div className="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+            <div className="relative w-full max-w-md">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-slate-400" />
               <input 
                 type="text" 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t("documents.searchPlaceholder")} 
-                className="w-full pl-9 pr-4 py-2 text-xs border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-[#0B192C] bg-white font-sans"
+                className="w-full pl-10 pr-4 py-2.5 text-[15px] sm:text-base placeholder:text-[15px] placeholder-slate-400 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0B192C] bg-white font-sans text-slate-900"
               />
             </div>
           </div>
 
           {isLoading ? (
-            <div className="flex flex-col h-48 items-center justify-center space-y-2">
+            <div className="flex flex-col h-48 items-center justify-center space-y-2.5">
               <div className="animate-spin rounded-full h-8 w-8 border-2 border-[#0B192C] border-t-transparent"></div>
-              <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">{t("common.loading")}</p>
+              <p className="text-[13px] sm:text-sm text-slate-500 font-medium uppercase tracking-wider">{t("common.loading")}</p>
             </div>
           ) : filteredDocuments.length === 0 ? (
-            <div className="text-center py-12 px-4">
-              <FolderOpen className="h-10 w-10 text-slate-300 mx-auto mb-3" />
-              <h3 className="text-sm font-bold text-slate-800">{t("documents.noDocsTitle")}</h3>
-              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">{t("documents.noDocsSubtitle")}</p>
+            <div className="text-center py-14 px-4">
+              <FolderOpen className="h-11 w-11 text-slate-300 mx-auto mb-3" />
+              <h3 className="text-base font-bold text-slate-800">{t("documents.noDocsTitle")}</h3>
+              <p className="text-[13px] sm:text-sm text-slate-500 mt-1 max-w-sm mx-auto">{t("documents.noDocsSubtitle")}</p>
               <button 
                 onClick={() => { setShowUploadModal(true); setUploadError(null); setSelectedFile(null); }}
-                className="mt-4 inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#0B192C] text-white rounded text-xs font-semibold hover:bg-slate-800 transition-colors"
+                className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-[#0B192C] text-white rounded-md text-[14px] font-semibold hover:bg-slate-800 transition-colors shadow-xs"
               >
-                <Upload className="h-3.5 w-3.5" />
+                <Upload className="h-4 w-4" />
                 <span>{t("documents.uploadFirstDoc")}</span>
               </button>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left border-collapse">
-                <thead className="text-[11px] text-slate-600 uppercase tracking-wider bg-slate-100/70 border-b border-slate-200">
+              <table className="w-full text-left border-collapse">
+                <thead className="text-[13px] text-slate-600 uppercase font-mono tracking-wider bg-slate-100/70 border-b border-slate-200">
                   <tr>
-                    <th className="px-4 py-3 font-semibold">{t("documents.tableDoc")}</th>
-                    <th className="px-4 py-3 font-semibold">{t("documents.fileSize")}</th>
-                    <th className="px-4 py-3 font-semibold">{t("documents.tableApp")}</th>
-                    <th className="px-4 py-3 font-semibold">{t("documents.tableStatus")}</th>
-                    <th className="px-4 py-3 font-semibold">{t("documents.tableDate")}</th>
-                    <th className="px-4 py-3 font-semibold text-right">{t("documents.tableActions")}</th>
+                    <th className="px-4 py-4 font-semibold w-[36%] min-w-[280px]">{t("documents.tableDoc")}</th>
+                    <th className="px-4 py-4 font-semibold w-[12%] min-w-[100px]">{t("documents.fileSize")}</th>
+                    <th className="px-4 py-4 font-semibold w-[15%] min-w-[140px]">{t("documents.tableApp")}</th>
+                    <th className="px-4 py-4 font-semibold w-[13%] min-w-[130px]">{t("documents.tableStatus")}</th>
+                    <th className="px-4 py-4 font-semibold w-[11%] min-w-[110px]">{t("documents.tableDate")}</th>
+                    <th className="px-4 py-4 font-semibold text-right w-[13%] min-w-[150px]">{t("documents.tableActions")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 font-sans">
@@ -410,28 +410,28 @@ export default function DocumentsPage() {
 
                     return (
                       <tr key={doc.id} className="hover:bg-slate-50/70 transition-colors">
-                        <td className="px-4 py-3">
-                          <div className="flex items-start gap-2.5">
-                            <div className="p-1.5 bg-slate-100 rounded text-slate-600 shrink-0 mt-0.5">
-                              <FileText className="h-4 w-4" />
+                        <td className="px-4 py-4">
+                          <div className="flex items-start gap-3">
+                            <div className="p-2 bg-slate-100 rounded-md text-slate-600 shrink-0 mt-0.5">
+                              <FileText className="h-4.5 w-4.5" />
                             </div>
                             <div className="min-w-0 space-y-1">
                               <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="font-semibold text-slate-900">{tDocType(doc.document_type)}</span>
-                                <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold bg-slate-200/80 text-slate-700">
+                                <span className="font-semibold text-slate-900 text-[15px] sm:text-base">{tDocType(doc.document_type)}</span>
+                                <span className="px-2 py-0.5 rounded text-xs font-mono font-bold bg-slate-200/80 text-slate-700">
                                   {mimeBadge}
                                 </span>
                                 {pageText && (
-                                  <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-blue-50 text-blue-800 border border-blue-200">
+                                  <span className="px-2 py-0.5 rounded text-xs font-mono bg-blue-50 text-blue-800 border border-blue-200">
                                     {pageText}
                                   </span>
                                 )}
                               </div>
-                              <p className="text-[11px] text-slate-500 truncate max-w-[240px]" title={displayName}>
+                              <p className="text-[13px] sm:text-sm text-slate-500 truncate max-w-md xl:max-w-2xl mt-0.5" title={displayName}>
                                 {displayName}
                               </p>
                               {doc.status === 'REQUIRES_REUPLOAD' && doc.review_notes && !["nil", "none"].includes(doc.review_notes.trim().toLowerCase()) && (
-                                <div className="p-1.5 rounded bg-amber-50 border border-amber-200 text-amber-900 text-[11px] max-w-md">
+                                <div className="p-2 rounded-md bg-amber-50 border border-amber-200 text-amber-900 text-[13px] max-w-lg mt-1">
                                   <span className="font-semibold">Underwriter note: </span>{doc.review_notes}
                                 </div>
                               )}
@@ -439,11 +439,11 @@ export default function DocumentsPage() {
                           </div>
                         </td>
 
-                        <td className="px-4 py-3 font-mono text-[11px] text-slate-700 whitespace-nowrap">
+                        <td className="px-4 py-4 font-mono text-[13px] sm:text-sm text-slate-800 whitespace-nowrap">
                           {formatFileSize(doc.file_size_bytes)}
                         </td>
 
-                        <td className="px-4 py-3 font-mono text-[11px] text-slate-700">
+                        <td className="px-4 py-4 font-mono text-[13px] sm:text-sm text-slate-800">
                           {doc.application_id ? (
                             <Link 
                               href={`/dashboard/applications/${doc.application_id}`}
@@ -457,14 +457,14 @@ export default function DocumentsPage() {
                           )}
                         </td>
 
-                        <td className="px-4 py-3">
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold border ${badge.className}`}>
+                        <td className="px-4 py-4">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[12px] sm:text-[13px] font-semibold uppercase tracking-wider border ${badge.className}`}>
                             {badge.icon}
                             <span>{badge.label}</span>
                           </span>
                         </td>
 
-                        <td className="px-4 py-3 text-slate-500 font-mono text-[11px] whitespace-nowrap">
+                        <td className="px-4 py-4 text-slate-600 font-mono text-[13px] sm:text-sm whitespace-nowrap">
                           {doc.created_at ? new Date(doc.created_at).toLocaleDateString('en-IN', {
                             day: '2-digit',
                             month: 'short',
@@ -472,8 +472,8 @@ export default function DocumentsPage() {
                           }) : "—"}
                         </td>
 
-                        <td className="px-4 py-3 text-right whitespace-nowrap">
-                          <div className="flex items-center justify-end gap-2">
+                        <td className="px-4 py-4 text-right whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-2.5">
                             {doc.status === 'REQUIRES_REUPLOAD' && (
                               <button
                                 onClick={() => {
@@ -481,10 +481,10 @@ export default function DocumentsPage() {
                                   setReplacementFile(null);
                                   setReplacementError(null);
                                 }}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-xs font-semibold transition-colors shadow-xs"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-md text-[13px] sm:text-[14px] font-semibold transition-colors shadow-xs"
                                 title={t("documents.replaceDocument")}
                               >
-                                <Upload className="h-3 w-3" />
+                                <Upload className="h-3.5 w-3.5" />
                                 <span>{t("documents.replaceDocument")}</span>
                               </button>
                             )}
@@ -493,22 +493,22 @@ export default function DocumentsPage() {
                               href={`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}/api/documents/${doc.id}/content`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 px-2 py-1 text-slate-600 hover:text-blue-600 rounded hover:bg-slate-100 text-xs font-semibold transition-colors"
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-slate-700 hover:text-blue-700 rounded-md hover:bg-slate-100 text-[13px] sm:text-[14px] font-semibold transition-colors"
                               title={t("documents.viewDoc")}
                               aria-label={t("documents.viewDoc")}
                             >
-                              <ExternalLink className="h-3.5 w-3.5" />
+                              <ExternalLink className="h-4 w-4" />
                               <span>{t("documents.viewDoc")}</span>
                             </a>
 
                             <button 
                               onClick={() => handleDelete(doc.id)}
                               disabled={doc.status === 'VERIFIED' || doc.status === 'PROCESSING'}
-                              className="text-slate-400 hover:text-red-600 disabled:opacity-30 disabled:hover:text-slate-400 transition-colors p-1 rounded hover:bg-slate-100"
+                              className="text-slate-400 hover:text-red-600 disabled:opacity-30 disabled:hover:text-slate-400 transition-colors p-1.5 rounded-md hover:bg-slate-100"
                               title={t("common.delete")}
                               aria-label={t("common.delete")}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-4.5 w-4.5" />
                             </button>
                           </div>
                         </td>

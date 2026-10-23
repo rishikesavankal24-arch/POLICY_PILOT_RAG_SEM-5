@@ -33,6 +33,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
+  containerClassName?: string;
 }
 
 interface NotificationItem {
@@ -44,7 +45,7 @@ interface NotificationItem {
   created_at: string;
 }
 
-export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
+export function AuthenticatedLayout({ children, containerClassName }: AuthenticatedLayoutProps) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const { t, language, languageInfo, setLanguage, supportedLanguages, isUpdatingLang } = useLanguage();
@@ -240,20 +241,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
-      {/* Official Regulated Banking / Government Portal Utility Strip */}
-      <div className="bg-[#0B192C] text-slate-300 text-[11px] font-medium tracking-wider px-4 sm:px-6 py-1.5 flex items-center justify-between border-b border-[#1E293B]">
-        <div className="flex items-center gap-2">
-          <span className="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
-          <span className="uppercase font-semibold text-slate-200">PolicyPilot • Banking Compliance Portal</span>
-        </div>
-        <div className="hidden md:flex items-center gap-4 text-[10px] text-slate-400 uppercase tracking-wider">
-          <span>Customer Portal</span>
-          <span>•</span>
-          <span>Compliance & Lending Sandbox</span>
-        </div>
-      </div>
-
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-inter [--font-sans:var(--font-inter)]" style={{ fontFamily: "var(--font-inter), 'Inter', sans-serif" }}>
       {/* Top Navigation Bar with Hamburger Control & Notification Bell */}
       <header className="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-sm">
         <div className="px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -702,7 +690,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
         )}
 
         <main className="flex-1 relative z-0 focus:outline-none">
-          <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+          <div className={cn("py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full", containerClassName)}>
             {children}
           </div>
         </main>

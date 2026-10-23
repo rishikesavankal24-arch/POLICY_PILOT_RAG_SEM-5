@@ -17,15 +17,22 @@ from app.core.security import get_password_hash, verify_password
 
 router = APIRouter()
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 @router.get("/google/login")
 def google_login(state: Optional[str] = None):
     GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
     BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000")
+    ADMIN_FRONTEND_URL = os.getenv("ADMIN_FRONTEND_URL", "http://127.0.0.1:3001")
     REDIRECT_URI = f"{BACKEND_URL}/auth/google/callback"
-    
+
     if not GOOGLE_CLIENT_ID:
-        raise HTTPException(status_code=500, detail="Google OAuth not configured")
-    
+        target_login = f"{ADMIN_FRONTEND_URL}/login" if state == "admin" else f"{FRONTEND_URL}/login"
+        return RedirectResponse(f"{target_login}?error=oauth_not_configured")
+
     auth_url = (
         f"https://accounts.google.com/o/oauth2/v2/auth"
         f"?response_type=code&client_id={GOOGLE_CLIENT_ID}&redirect_uri={REDIRECT_URI}"
@@ -37,10 +44,11 @@ def google_login(state: Optional[str] = None):
 
 @router.get("/google/callback")
 async def google_callback(
-    code: str, 
-    request: Request, 
-    response: Response, 
-    state: Optional[str] = None, 
+    request: Request,
+    response: Response,
+    code: Optional[str] = None,
+    error: Optional[str] = None,
+    state: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
     GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -49,113 +57,141 @@ async def google_callback(
     FRONTEND_URL = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000")
     ADMIN_FRONTEND_URL = os.getenv("ADMIN_FRONTEND_URL", "http://127.0.0.1:3001")
     REDIRECT_URI = f"{BACKEND_URL}/auth/google/callback"
+    target_login = f"{ADMIN_FRONTEND_URL}/login" if state == "admin" else f"{FRONTEND_URL}/login"
 
+    # 1. Handle OAuth error or user cancellation from Google
+    if error:
+        logger.warning(f"Google OAuth returned error parameter: {error}")
+        return RedirectResponse(f"{target_login}?error={error}")
+
+    # 2. Handle missing authorization code
+    if not code:
+        logger.warning("Google OAuth callback received without authorization code.")
+        return RedirectResponse(f"{target_login}?error=missing_code")
+
+    # 3. Handle missing server-side configuration
     if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
-        raise HTTPException(status_code=500, detail="Google OAuth not configured")
+        logger.error("Google OAuth client ID or client secret is not configured.")
+        return RedirectResponse(f"{target_login}?error=oauth_not_configured")
 
-    token_url = "https://oauth2.googleapis.com/token"
-    data = {
-        "code": code,
-        "client_id": GOOGLE_CLIENT_ID,
-        "client_secret": GOOGLE_CLIENT_SECRET,
-        "redirect_uri": REDIRECT_URI,
-        "grant_type": "authorization_code"
-    }
-    
-    async with httpx.AsyncClient() as client:
-        token_res = await client.post(token_url, data=data)
-        if token_res.status_code != 200:
-            raise HTTPException(status_code=400, detail="Failed to retrieve token from Google")
-        
-        token_data = token_res.json()
-        access_token = token_data.get("access_token")
-        
-        # Get user info
-        user_info_res = await client.get(
-            "https://www.googleapis.com/oauth2/v2/userinfo",
-            headers={"Authorization": f"Bearer {access_token}"}
-        )
-        if user_info_res.status_code != 200:
-            raise HTTPException(status_code=400, detail="Failed to retrieve user info")
-        
-        user_info = user_info_res.json()
-        email = user_info.get("email")
-        google_id = user_info.get("id")
-        name = user_info.get("name")
-        picture = user_info.get("picture")
+    try:
+        token_url = "https://oauth2.googleapis.com/token"
+        data = {
+            "code": code,
+            "client_id": GOOGLE_CLIENT_ID,
+            "client_secret": GOOGLE_CLIENT_SECRET,
+            "redirect_uri": REDIRECT_URI,
+            "grant_type": "authorization_code"
+        }
 
-    if not email or not google_id:
-        raise HTTPException(status_code=400, detail="Invalid user info returned from Google")
+        async with httpx.AsyncClient() as client:
+            token_res = await client.post(token_url, data=data)
+            if token_res.status_code != 200:
+                logger.warning(f"Google token endpoint returned status {token_res.status_code}")
+                return RedirectResponse(f"{target_login}?error=token_exchange_failed")
 
-    # Find or create user
-    user = db.query(User).filter(
-        (User.provider_subject_id == google_id) | (User.email == email)
-    ).first()
-    if not user:
-        user = User(
-            email=email,
-            full_name=name,
-            profile_image_url=picture,
-            authentication_provider="google",
-            provider_subject_id=google_id,
-            onboarding_status=OnboardingStatus.NEW.value,
-            role=Role.UNASSIGNED.value,
-            requested_role=Role.UNASSIGNED.value
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-    else:
-        user.last_login_at = datetime.now(timezone.utc)
-        if not user.provider_subject_id:
-            user.provider_subject_id = google_id
-        if picture and not user.profile_image_url:
-            user.profile_image_url = picture
-        db.commit()
+            token_data = token_res.json()
+            access_token = token_data.get("access_token")
+            if not access_token:
+                logger.warning("Google token response did not contain access_token.")
+                return RedirectResponse(f"{target_login}?error=token_exchange_failed")
 
-    # Admin Portal Authorization Enforcement
-    if state == "admin":
-        if user.role != Role.ADMIN.value:
-            # Deny Admin Portal access: Do not create session, redirect back with error
-            return RedirectResponse(f"{ADMIN_FRONTEND_URL}/login?error=access_denied")
-        
-        # Authorized Administrator: Create session and redirect to admin dashboard
+            # Get user info
+            user_info_res = await client.get(
+                "https://www.googleapis.com/oauth2/v2/userinfo",
+                headers={"Authorization": f"Bearer {access_token}"}
+            )
+            if user_info_res.status_code != 200:
+                logger.warning(f"Google userinfo endpoint returned status {user_info_res.status_code}")
+                return RedirectResponse(f"{target_login}?error=user_info_failed")
+
+            user_info = user_info_res.json()
+            email = user_info.get("email")
+            google_id = user_info.get("id")
+            name = user_info.get("name")
+            picture = user_info.get("picture")
+
+        if not email or not google_id:
+            logger.warning("Invalid or incomplete user info payload received from Google.")
+            return RedirectResponse(f"{target_login}?error=invalid_user_info")
+
+        # Find or create user
+        user = db.query(User).filter(
+            (User.provider_subject_id == google_id) | (User.email == email)
+        ).first()
+        if not user:
+            user = User(
+                email=email,
+                full_name=name,
+                profile_image_url=picture,
+                authentication_provider="google",
+                provider_subject_id=google_id,
+                onboarding_status=OnboardingStatus.NEW.value,
+                role=Role.UNASSIGNED.value,
+                requested_role=Role.UNASSIGNED.value
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        else:
+            user.last_login_at = datetime.now(timezone.utc)
+            if not user.provider_subject_id:
+                user.provider_subject_id = google_id
+            if picture and not user.profile_image_url:
+                user.profile_image_url = picture
+            db.commit()
+
+        # Admin Portal Authorization Enforcement
+        if state == "admin":
+            if user.role != Role.ADMIN.value:
+                # Deny Admin Portal access: Do not create session, redirect back with error
+                return RedirectResponse(f"{ADMIN_FRONTEND_URL}/login?error=access_denied")
+
+            # Authorized Administrator: Create session and redirect to admin dashboard
+            session_token = create_user_session(db, user.id)
+            res = RedirectResponse(f"{ADMIN_FRONTEND_URL}/dashboard")
+            res.set_cookie(
+                key="session_id",
+                value=session_token,
+                httponly=True,
+                samesite="lax",
+                secure=False,
+                max_age=7 * 24 * 3600,
+                path="/"
+            )
+            return res
+
+        # Create session for customer or employee
         session_token = create_user_session(db, user.id)
-        res = RedirectResponse(f"{ADMIN_FRONTEND_URL}/dashboard")
+
+        # Redirect back to frontend
+        redirect_target = f"{FRONTEND_URL}/dashboard"
+        if user.onboarding_status in [OnboardingStatus.NEW.value, OnboardingStatus.ONBOARDING_REQUIRED.value]:
+            redirect_target = f"{FRONTEND_URL}/onboarding"
+        elif user.onboarding_status == OnboardingStatus.PENDING_VERIFICATION.value:
+            redirect_target = f"{FRONTEND_URL}/pending"
+        elif user.role == Role.EMPLOYEE.value:
+            redirect_target = f"{FRONTEND_URL}/employee/dashboard"
+
+        res = RedirectResponse(redirect_target)
         res.set_cookie(
             key="session_id",
             value=session_token,
             httponly=True,
             samesite="lax",
-            secure=False,
+            secure=False,  # Set True in prod
             max_age=7 * 24 * 3600,
             path="/"
         )
         return res
-
-    # Create session
-    session_token = create_user_session(db, user.id)
-    
-    # Redirect back to frontend
-    redirect_target = f"{FRONTEND_URL}/dashboard"
-    if user.onboarding_status in [OnboardingStatus.NEW.value, OnboardingStatus.ONBOARDING_REQUIRED.value]:
-        redirect_target = f"{FRONTEND_URL}/onboarding"
-    elif user.onboarding_status == OnboardingStatus.PENDING_VERIFICATION.value:
-        redirect_target = f"{FRONTEND_URL}/pending"
-    elif user.role == Role.EMPLOYEE.value:
-        redirect_target = f"{FRONTEND_URL}/employee/dashboard"
-
-    res = RedirectResponse(redirect_target)
-    res.set_cookie(
-        key="session_id",
-        value=session_token,
-        httponly=True,
-        samesite="lax",
-        secure=False,  # Set True in prod
-        max_age=7 * 24 * 3600,
-        path="/"
-    )
-    return res
+    except Exception as e:
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        logger.error(f"Google OAuth callback encountered unexpected exception: {type(e).__name__}")
+        err_code = "database_unavailable" if "OperationalError" in type(e).__name__ or "DBAPIError" in type(e).__name__ else "service_unavailable"
+        return RedirectResponse(f"{target_login}?error={err_code}")
 
 @router.get("/me")
 def get_me(request: Request, current_user: User = Depends(get_current_user)):
@@ -195,46 +231,46 @@ def send_otp(req: SendOTPRequest, db: Session = Depends(get_db)):
         phone = normalize_phone(req.phone_number)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid mobile number")
-        
+
     OTP_RESEND_COOLDOWN_SECONDS = int(os.getenv("OTP_RESEND_COOLDOWN_SECONDS", "60"))
     OTP_EXPIRY_SECONDS = int(os.getenv("OTP_EXPIRY_SECONDS", "300"))
-    
+
     now = datetime.now(timezone.utc)
-    
+
     # Check rate limit
     recent_otp = db.query(OTPRecord).filter(
         OTPRecord.phone_number == phone
     ).order_by(OTPRecord.created_at.desc()).first()
-    
+
     if recent_otp:
         if recent_otp.created_at.tzinfo is None:
             created_at_utc = recent_otp.created_at.replace(tzinfo=timezone.utc)
         else:
             created_at_utc = recent_otp.created_at.astimezone(timezone.utc)
-            
+
         elapsed_seconds = (now - created_at_utc).total_seconds()
-        
+
         # Handle stale/future records from previous broken tests (e.g. clock drift)
         if elapsed_seconds < 0:
             elapsed_seconds = OTP_RESEND_COOLDOWN_SECONDS
-            
+
         if elapsed_seconds < OTP_RESEND_COOLDOWN_SECONDS:
             remaining_seconds = max(0, int(OTP_RESEND_COOLDOWN_SECONDS - elapsed_seconds))
             if remaining_seconds > 0:
                 raise HTTPException(
-                    status_code=429, 
+                    status_code=429,
                     detail={
                         "message": "Please wait before requesting a new OTP",
                         "retry_after_seconds": remaining_seconds
                     },
                     headers={"Retry-After": str(remaining_seconds)}
                 )
-        
+
     otp = generate_otp()
     hashed_otp = hash_otp(otp)
-    
+
     expires_at = now + timedelta(seconds=OTP_EXPIRY_SECONDS)
-    
+
     record = OTPRecord(
         phone_number=phone,
         otp_hash=hashed_otp,
@@ -243,9 +279,9 @@ def send_otp(req: SendOTPRequest, db: Session = Depends(get_db)):
     )
     db.add(record)
     db.commit()
-    
+
     sms_service.send_otp(phone, otp)
-    
+
     return {"message": "OTP sent successfully"}
 
 @router.post("/mobile/verify-otp")
@@ -254,32 +290,32 @@ def verify_otp(req: VerifyOTPRequest, db: Session = Depends(get_db)):
         phone = normalize_phone(req.phone_number)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid mobile number")
-        
+
     OTP_MAX_ATTEMPTS = int(os.getenv("OTP_MAX_ATTEMPTS", "5"))
     FRONTEND_URL = os.getenv("FRONTEND_URL", "http://127.0.0.1:3000")
-    
+
     record = db.query(OTPRecord).filter(
         OTPRecord.phone_number == phone,
         OTPRecord.verified_at.is_(None)
     ).order_by(OTPRecord.created_at.desc()).first()
-    
+
     if not record:
         raise HTTPException(status_code=400, detail="No active OTP found")
-        
+
     if record.attempts >= OTP_MAX_ATTEMPTS:
         raise HTTPException(status_code=400, detail="Maximum attempts exceeded. Request a new OTP.")
-        
+
     if record.expires_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
         raise HTTPException(status_code=400, detail="OTP expired")
-        
+
     if not verify_otp_hash(req.otp, record.otp_hash):
         record.attempts += 1
         db.commit()
         raise HTTPException(status_code=400, detail="Incorrect OTP")
-        
+
     record.verified_at = datetime.now(timezone.utc)
     db.commit()
-    
+
     # Find or create user
     user = db.query(User).filter(
         (User.phone_number == phone) | (User.provider_subject_id == phone)
@@ -301,10 +337,10 @@ def verify_otp(req: VerifyOTPRequest, db: Session = Depends(get_db)):
     else:
         user.last_login_at = datetime.now(timezone.utc)
         db.commit()
-        
+
     # Create session
     session_token = create_user_session(db, user.id)
-    
+
     # Redirect logic
     redirect_target = "/dashboard"
     if user.onboarding_status in [OnboardingStatus.NEW.value, OnboardingStatus.ONBOARDING_REQUIRED.value]:
@@ -314,7 +350,7 @@ def verify_otp(req: VerifyOTPRequest, db: Session = Depends(get_db)):
         redirect_target = "/pending"
     elif user.role == Role.EMPLOYEE.value:
         redirect_target = "/employee/dashboard"
-        
+
     response_data = {
         "redirect": redirect_target,
         "session_token": session_token,
@@ -355,10 +391,10 @@ class LocalLoginRequest(BaseModel):
 def local_register(req: LocalRegisterRequest, request: Request, db: Session = Depends(get_db)):
     if not req.email or not req.password:
         raise HTTPException(status_code=400, detail="Email and password are required")
-        
+
     if not req.consent_accepted:
         raise HTTPException(status_code=400, detail="Consent is required")
-        
+
     session_token = request.cookies.get("session_id")
     current_user = None
     if session_token:
@@ -366,11 +402,11 @@ def local_register(req: LocalRegisterRequest, request: Request, db: Session = De
         session_record = db.query(SessionModel).filter(SessionModel.session_token == session_token).first()
         if session_record:
             current_user = session_record.user
-            
+
     existing = db.query(User).filter(User.email == req.email).first()
-    
+
     hashed_password = get_password_hash(req.password)
-    
+
     if req.role == Role.EMPLOYEE.value:
         onboarding_status = OnboardingStatus.PENDING_VERIFICATION.value
         assigned_role = Role.CUSTOMER.value # Pending employees get customer privileges
@@ -382,7 +418,7 @@ def local_register(req: LocalRegisterRequest, request: Request, db: Session = De
     if current_user and current_user.onboarding_status == OnboardingStatus.NEW.value:
         if existing and existing.id != current_user.id:
             raise HTTPException(status_code=400, detail="Email already registered")
-            
+
         current_user.email = req.email
         current_user.full_name = req.full_name
         # Keep their verified phone_number if it exists and wasn't changed (frontend locks it anyway)
@@ -394,13 +430,13 @@ def local_register(req: LocalRegisterRequest, request: Request, db: Session = De
         current_user.onboarding_status = onboarding_status
         current_user.role = assigned_role
         current_user.requested_role = req.role
-        
+
         user = current_user
-        
+
     else:
         if existing:
             raise HTTPException(status_code=400, detail="Email already registered")
-            
+
         user = User(
             email=req.email,
             full_name=req.full_name,
@@ -416,19 +452,19 @@ def local_register(req: LocalRegisterRequest, request: Request, db: Session = De
         )
         db.add(user)
         db.flush()
-    
+
     if req.role == Role.EMPLOYEE.value:
         from app.db.models import EmployeeRequest, EmployeeRequestStatus
-        
+
         is_dev = os.getenv("ENVIRONMENT", "development").lower() == "development"
         auto_approve = os.getenv("EMPLOYEE_AUTO_APPROVE", "false").lower() == "true"
-        
+
         req_status = EmployeeRequestStatus.PENDING.value
         if is_dev and auto_approve:
             req_status = EmployeeRequestStatus.APPROVED.value
             user.role = Role.EMPLOYEE.value
             user.onboarding_status = OnboardingStatus.COMPLETED.value
-            
+
         employee_req = EmployeeRequest(
             user_id=user.id,
             organization=req.organization,
@@ -441,9 +477,9 @@ def local_register(req: LocalRegisterRequest, request: Request, db: Session = De
         if is_dev and auto_approve:
             employee_req.admin_note = "SYSTEM_DEVELOPMENT_AUTO_APPROVAL"
             employee_req.reviewed_at = datetime.now(timezone.utc)
-            
+
         db.add(employee_req)
-        
+
     db.commit()
     return {"message": "Account created/upgraded successfully"}
 
@@ -453,22 +489,22 @@ def local_login(req: LocalLoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(
         (User.email == req.identifier) | (User.phone_number == req.identifier)
     ).first()
-    
+
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
-        
+
     if not user.hashed_password:
         raise HTTPException(status_code=401, detail="Please login with your original authentication provider")
-        
+
     if not verify_password(req.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-        
+
     user.last_login_at = datetime.now(timezone.utc)
     db.commit()
-    
+
     # Create session
     session_token = create_user_session(db, user.id)
-    
+
     # Redirect logic
     redirect_target = "/dashboard"
     if user.onboarding_status in [OnboardingStatus.NEW.value, OnboardingStatus.ONBOARDING_REQUIRED.value]:
@@ -477,7 +513,7 @@ def local_login(req: LocalLoginRequest, db: Session = Depends(get_db)):
         redirect_target = "/pending"
     elif user.role == Role.EMPLOYEE.value:
         redirect_target = "/employee/dashboard"
-        
+
     response_data = {
         "redirect": redirect_target,
         "session_token": session_token,
@@ -515,7 +551,7 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)):
         if session_record:
             db.delete(session_record)
             db.commit()
-            
+
     response = Response(status_code=200)
     response.delete_cookie("session_id", path="/")
     return response
@@ -533,41 +569,40 @@ def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(
         (User.email == req.identifier) | (User.phone_number == req.identifier)
     ).first()
-    
+
     if not user:
         # Prevent user enumeration by returning success regardless
         return {"message": "If that account exists, a password reset link has been generated."}
-        
+
     reset_token = str(uuid.uuid4())
     user.reset_token = reset_token
     user.reset_token_expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
     db.commit()
-    
+
     # In a real app, send an email. For local dev, print to console.
     print(f"==================================================")
     print(f"PASSWORD RESET TOKEN FOR {user.email or user.phone_number}:")
     print(f"{reset_token}")
     print(f"==================================================")
-    
+
     return {"message": "If that account exists, a password reset link has been generated."}
 
 @router.post("/local/reset-password")
 def reset_password(req: ResetPasswordRequest, db: Session = Depends(get_db)):
     if len(req.new_password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters long")
-        
+
     user = db.query(User).filter(
         User.reset_token == req.token,
         User.reset_token_expires_at > datetime.now(timezone.utc)
     ).first()
-    
+
     if not user:
         raise HTTPException(status_code=400, detail="Invalid or expired reset token")
-        
+
     user.hashed_password = get_password_hash(req.new_password)
     user.reset_token = None
     user.reset_token_expires_at = None
     db.commit()
-    
-    return {"message": "Password successfully reset"}
 
+    return {"message": "Password successfully reset"}

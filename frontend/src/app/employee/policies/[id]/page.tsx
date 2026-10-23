@@ -208,10 +208,6 @@ export default function EmployeePolicyDetailPage() {
             <ArrowLeft className="h-4 w-4" />
             <span>Back to Policy Catalog</span>
           </Link>
-
-          <span className="text-[10px] font-mono text-slate-400 bg-slate-900 px-2.5 py-1 rounded border border-slate-800">
-            EMPLOYEE WORKSPACE • READ-ONLY
-          </span>
         </div>
 
         {/* Action Error Banner */}

@@ -21,6 +21,14 @@ function LoginForm() {
       setError(
         "Access Denied: Your Google account does not have Administrator privileges. Please sign in with an authorized Admin account."
       );
+    } else if (errorParam === "service_unavailable" || errorParam === "auth_failed") {
+      setError(
+        "Authentication service is temporarily unavailable. Please verify the database status or use password login."
+      );
+    } else if (errorParam === "oauth_not_configured") {
+      setError("Google OAuth is not configured on the server.");
+    } else if (errorParam) {
+      setError("Google authentication could not be completed. Please try again.");
     }
   }, [searchParams]);
 

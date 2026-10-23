@@ -64,7 +64,7 @@ export function PolicyStatusBadge({ status, className, size = "sm" }: PolicyStat
         style.bg,
         style.text,
         style.border,
-        size === "sm" ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-1 text-xs",
+        size === "sm" ? "px-2.5 py-0.5 text-xs font-semibold" : "px-3 py-1 text-sm font-semibold",
         className
       )}
       title={`Policy Status: ${style.label}`}

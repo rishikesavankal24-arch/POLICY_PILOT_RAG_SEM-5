@@ -62,17 +62,17 @@ export default function AdminDashboardPage() {
       <div className="space-y-6">
         
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-slate-200 gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold tracking-tight text-slate-900 uppercase">
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
                 Administrative Governance Dashboard
               </h1>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300">
+              <span className="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300">
                 ACTIVE CONSOLE
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-[15px] text-slate-600 mt-1.5 leading-relaxed">
               Central supervisory oversight, personnel verification, and platform management
             </p>
           </div>
@@ -80,123 +80,123 @@ export default function AdminDashboardPage() {
           <button
             onClick={fetchOverview}
             disabled={loading}
-            className="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold border border-slate-300 flex items-center gap-1.5 shadow-xs transition-colors self-start sm:self-auto"
+            className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-semibold border border-slate-300 flex items-center gap-2 shadow-xs transition-colors self-start sm:self-auto"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             <span>Refresh Overview</span>
           </button>
         </div>
 
         {/* Error Notice */}
         {error && (
-          <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs">
+          <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-sm">
             {error}
           </div>
         )}
 
         {/* Real Operational Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           {/* Card 1: Employee Verification */}
           <div className="p-5 bg-white border border-slate-200 rounded-xl shadow-xs space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 font-mono">
+              <span className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500 font-mono">
                 Employee Requests
               </span>
-              <UserCheck className="h-4 w-4 text-amber-600" />
+              <UserCheck className="h-5 w-5 text-amber-600" />
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-slate-900">
+            <div className="flex items-baseline gap-2.5">
+              <span className="text-3xl sm:text-4xl font-bold text-slate-900">
                 {loading ? "..." : pendingRequests.length}
               </span>
-              <span className="text-xs text-amber-700 font-semibold font-mono">Pending Review</span>
+              <span className="text-sm text-amber-700 font-semibold font-mono">Pending Review</span>
             </div>
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+            <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-sm">
               <span className="text-slate-500">Total requests on record:</span>
               <span className="font-bold text-slate-700 font-mono">{requests.length}</span>
             </div>
             <Link
               href="/employee-verification"
-              className="mt-1 w-full py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+              className="mt-1.5 w-full py-2.5 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
             >
               <span>Review Requests</span>
-              <ArrowRight className="h-3.5 w-3.5" />
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
           {/* Card 2: Active Employees */}
           <div className="p-5 bg-white border border-slate-200 rounded-xl shadow-xs space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 font-mono">
+              <span className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500 font-mono">
                 Active Employees
               </span>
-              <Users className="h-4 w-4 text-slate-600" />
+              <Users className="h-5 w-5 text-slate-600" />
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-slate-900">
+            <div className="flex items-baseline gap-2.5">
+              <span className="text-3xl sm:text-4xl font-bold text-slate-900">
                 {loading ? "..." : employees.length}
               </span>
-              <span className="text-xs text-slate-600 font-semibold font-mono">Officers Registered</span>
+              <span className="text-sm text-slate-600 font-semibold font-mono">Officers Registered</span>
             </div>
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+            <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-sm">
               <span className="text-slate-500">Institutional personnel:</span>
               <span className="font-bold text-slate-700 font-mono">PolicyPilot Demo Bank</span>
             </div>
             <Link
               href="/employees"
-              className="mt-1 w-full py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+              className="mt-1.5 w-full py-2.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
             >
               <span>View Employee Directory</span>
-              <ArrowRight className="h-3.5 w-3.5" />
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
           {/* Card 3: Customers */}
           <div className="p-5 bg-white border border-slate-200 rounded-xl shadow-xs space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 font-mono">
+              <span className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500 font-mono">
                 Customer Accounts
               </span>
-              <Users className="h-4 w-4 text-blue-600" />
+              <Users className="h-5 w-5 text-blue-600" />
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-slate-900">
+            <div className="flex items-baseline gap-2.5">
+              <span className="text-3xl sm:text-4xl font-bold text-slate-900">
                 {loading ? "..." : customers.length}
               </span>
-              <span className="text-xs text-blue-700 font-semibold font-mono">Borrowers Registered</span>
+              <span className="text-sm text-blue-700 font-semibold font-mono">Borrowers Registered</span>
             </div>
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+            <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-sm">
               <span className="text-slate-500">Registry status:</span>
               <span className="font-bold text-emerald-600 font-mono">Live Sync</span>
             </div>
             <Link
               href="/customers"
-              className="mt-1 w-full py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+              className="mt-1.5 w-full py-2.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
             >
               <span>View Customer Registry</span>
-              <ArrowRight className="h-3.5 w-3.5" />
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
 
         {/* Policy & Regulation Governance Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {/* Policies Card */}
           <div className="p-5 bg-white border border-slate-200 rounded-xl shadow-xs space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 font-mono">
+              <span className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500 font-mono">
                 Policy Repository
               </span>
-              <BookOpen className="h-4 w-4 text-amber-600" />
+              <BookOpen className="h-5 w-5 text-amber-600" />
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-slate-900">
+            <div className="flex items-baseline gap-2.5">
+              <span className="text-3xl sm:text-4xl font-bold text-slate-900">
                 {loading ? "..." : policies.length}
               </span>
-              <span className="text-xs text-amber-700 font-semibold font-mono">
+              <span className="text-sm text-amber-700 font-semibold font-mono">
                 {loading ? "" : `${policies.filter((p) => p.status === "ACTIVE").length} Active in Force`}
               </span>
             </div>
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+            <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-sm">
               <span className="text-slate-500">Draft policies pending:</span>
               <span className="font-bold text-slate-700 font-mono">
                 {policies.filter((p) => p.status === "DRAFT").length}
@@ -204,86 +204,86 @@ export default function AdminDashboardPage() {
             </div>
             <Link
               href="/policies"
-              className="mt-1 w-full py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+              className="mt-1.5 w-full py-2.5 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
             >
               <span>Manage Policies</span>
-              <ArrowRight className="h-3.5 w-3.5" />
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
           {/* Regulatory Authorities Card */}
           <div className="p-5 bg-white border border-slate-200 rounded-xl shadow-xs space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 font-mono">
+              <span className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500 font-mono">
                 Regulatory Authorities
               </span>
-              <Landmark className="h-4 w-4 text-slate-700" />
+              <Landmark className="h-5 w-5 text-slate-700" />
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-slate-900">
+            <div className="flex items-baseline gap-2.5">
+              <span className="text-3xl sm:text-4xl font-bold text-slate-900">
                 {loading ? "..." : authorities.length}
               </span>
-              <span className="text-xs text-emerald-700 font-semibold font-mono">
+              <span className="text-sm text-emerald-700 font-semibold font-mono">
                 {loading ? "" : `${authorities.filter((a) => a.is_active).length} Active Authorities`}
               </span>
             </div>
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+            <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-sm">
               <span className="text-slate-500">Governing jurisdictions:</span>
               <span className="font-bold text-slate-700 font-mono">IN, Global</span>
             </div>
             <Link
               href="/regulatory-authorities"
-              className="mt-1 w-full py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+              className="mt-1.5 w-full py-2.5 px-3 bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
             >
               <span>Manage Authorities</span>
-              <ArrowRight className="h-3.5 w-3.5" />
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
 
         {/* Future Modules Truthful Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs space-y-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div className="p-4.5 bg-white border border-slate-200 rounded-xl shadow-xs space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 font-mono">
+              <span className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500 font-mono">
                 Global Applications
               </span>
-              <FileText className="h-4 w-4 text-slate-400" />
+              <FileText className="h-4.5 w-4.5 text-slate-400" />
             </div>
-            <div className="text-xs font-medium text-slate-500 italic">
+            <div className="text-sm font-medium text-slate-500 italic">
               Module not yet available.
             </div>
-            <p className="text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+            <p className="text-xs text-slate-400 pt-2.5 border-t border-slate-100 leading-normal">
               Loan application governance will be established in Module M06.
             </p>
           </div>
 
-          <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs space-y-2">
+          <div className="p-4.5 bg-white border border-slate-200 rounded-xl shadow-xs space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 font-mono">
+              <span className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500 font-mono">
                 Institutions
               </span>
-              <Building2 className="h-4 w-4 text-slate-400" />
+              <Building2 className="h-4.5 w-4.5 text-slate-400" />
             </div>
-            <div className="text-xs font-medium text-slate-500 italic">
+            <div className="text-sm font-medium text-slate-500 italic">
               Module not yet available.
             </div>
-            <p className="text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+            <p className="text-xs text-slate-400 pt-2.5 border-t border-slate-100 leading-normal">
               Multi-tenant bank configuration will be enabled in a future release.
             </p>
           </div>
 
-          <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs space-y-2">
+          <div className="p-4.5 bg-white border border-slate-200 rounded-xl shadow-xs space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 font-mono">
+              <span className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-500 font-mono">
                 System Audit
               </span>
-              <ShieldCheck className="h-4 w-4 text-slate-400" />
+              <ShieldCheck className="h-4.5 w-4.5 text-slate-400" />
             </div>
-            <div className="text-xs font-medium text-slate-500 italic">
+            <div className="text-sm font-medium text-slate-500 italic">
               Module not yet available.
             </div>
-            <p className="text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+            <p className="text-xs text-slate-400 pt-2.5 border-t border-slate-100 leading-normal">
               Immutable audit trail and compliance verification will appear in M14.
             </p>
           </div>
@@ -291,13 +291,13 @@ export default function AdminDashboardPage() {
 
         {/* Architecture Notice */}
         <div className="p-5 bg-[#0F172A] border border-slate-800 rounded-xl text-slate-200 space-y-2 shadow-xs">
-          <div className="flex items-center gap-2 text-amber-400">
+          <div className="flex items-center gap-2.5 text-amber-400">
             <ShieldCheck className="h-5 w-5" />
-            <h2 className="text-sm font-bold uppercase tracking-wider">
+            <h2 className="text-base sm:text-lg font-bold uppercase tracking-wider">
               Administrative Console Architecture Notice
             </h2>
           </div>
-          <p className="text-xs text-slate-300 leading-relaxed max-w-3xl">
+          <p className="text-sm text-slate-300 leading-relaxed max-w-3xl">
             Administrative overview data will appear here once operational modules are enabled. This administrative console operates on a separate frontend on port 3001, strictly segregated from the user-facing Customer and Employee portals on port 3000, while sharing the central FastAPI backend and PostgreSQL database.
           </p>
         </div>
@@ -306,65 +306,65 @@ export default function AdminDashboardPage() {
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
           <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
             <div>
-              <h2 className="text-sm font-bold text-slate-900 uppercase">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900">
                 Pending Employee Verification Requests
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-sm text-slate-500 mt-1">
                 Onboarding requests awaiting administrative approval
               </p>
             </div>
             <Link
               href="/employee-verification"
-              className="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1"
+              className="text-sm font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1.5"
             >
               <span>View All ({pendingRequests.length})</span>
-              <ArrowRight className="h-3.5 w-3.5" />
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-100 text-slate-600 uppercase font-mono text-[11px] tracking-wider border-b border-slate-200">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-100 text-slate-600 uppercase font-mono text-xs tracking-wider border-b border-slate-200">
                 <tr>
-                  <th className="px-4 py-3">Applicant Name</th>
-                  <th className="px-4 py-3">Organization</th>
-                  <th className="px-4 py-3">Department</th>
-                  <th className="px-4 py-3">Designation</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Action</th>
+                  <th className="px-4 py-3.5">Applicant Name</th>
+                  <th className="px-4 py-3.5">Organization</th>
+                  <th className="px-4 py-3.5">Department</th>
+                  <th className="px-4 py-3.5">Designation</th>
+                  <th className="px-4 py-3.5">Status</th>
+                  <th className="px-4 py-3.5 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                    <td colSpan={6} className="px-4 py-8 text-center text-slate-400 text-sm">
                       Loading verification requests...
                     </td>
                   </tr>
                 ) : pendingRequests.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                    <td colSpan={6} className="px-4 py-8 text-center text-slate-400 text-sm">
                       No pending employee requests at this time.
                     </td>
                   </tr>
                 ) : (
                   pendingRequests.slice(0, 5).map((req) => (
                     <tr key={req.id} className="hover:bg-slate-50">
-                      <td className="px-4 py-3 font-semibold text-slate-800">
+                      <td className="px-4 py-3.5 font-semibold text-slate-800 text-sm sm:text-[15px]">
                         {req.full_name || req.email}
                       </td>
-                      <td className="px-4 py-3 text-slate-600">{req.organization}</td>
-                      <td className="px-4 py-3 text-slate-600">{req.department || "N/A"}</td>
-                      <td className="px-4 py-3 text-slate-600">{req.designation || "N/A"}</td>
-                      <td className="px-4 py-3">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                      <td className="px-4 py-3.5 text-slate-600 text-sm sm:text-[15px]">{req.organization}</td>
+                      <td className="px-4 py-3.5 text-slate-600 text-sm sm:text-[15px]">{req.department || "N/A"}</td>
+                      <td className="px-4 py-3.5 text-slate-600 text-sm sm:text-[15px]">{req.designation || "N/A"}</td>
+                      <td className="px-4 py-3.5">
+                        <span className="px-2.5 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
                           {req.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-4 py-3.5 text-right">
                         <Link
                           href={`/employee-verification/${req.id}`}
-                          className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold"
+                          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs sm:text-sm font-semibold inline-block"
                         >
                           Inspect
                         </Link>

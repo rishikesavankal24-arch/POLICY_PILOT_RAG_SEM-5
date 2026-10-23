@@ -1098,24 +1098,18 @@ export default function EmployeeApplicationDetailPage() {
             {/* Clean Integration Boundaries: Compliance Assessment & Credit Decisioning */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
-              {/* Compliance Boundary */}
-              <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-5 shadow-sm space-y-3">
+              {/* Compliance Evaluation */}
+              <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-800">
                   <div className="flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4 text-slate-400" />
+                    <ShieldCheck className="h-4 w-4 text-emerald-400" />
                     <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
                       Compliance Evaluation
                     </h3>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-400">
-                    {data.compliance.module === "M10_ADAPTIVE_RAG" ? "M10 Integration Boundary (Reserved)" : data.compliance.module}
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+                    ACTIVE
                   </span>
-                </div>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  {data.compliance.notes}
-                </p>
-                <div className="p-2.5 rounded bg-[#0A1224] border border-slate-800 text-[11px] text-slate-500 font-mono">
-                  Integration status: {data.compliance.status} (Reserved Boundary)
                 </div>
                 <div>
                   <Link
@@ -1225,49 +1219,38 @@ export default function EmployeeApplicationDetailPage() {
 
                 {/* State-specific Decision Workspace */}
                 {data.application.status === "APPROVED" && (
-                  <div className="p-4 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-emerald-200 text-xs space-y-1 shadow-sm">
+                  <div className="p-3.5 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-emerald-200 text-xs shadow-sm">
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
-                      <span className="font-bold text-sm text-emerald-100 uppercase tracking-wide">
-                        Final Decision: APPROVED
+                      <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                      <span className="font-bold text-xs text-emerald-100 uppercase tracking-wide">
+                        Decision: APPROVED
                       </span>
                     </div>
-                    <p className="text-[11px] text-emerald-300/80 pl-7 leading-relaxed">
-                      This application has been formally approved by an authorized credit officer. The final decision is committed and immutable.
-                    </p>
                   </div>
                 )}
 
                 {data.application.status === "DECLINED" && (
-                  <div className="p-4 rounded-xl bg-rose-950/60 border border-rose-500/50 text-rose-200 text-xs space-y-1 shadow-sm">
+                  <div className="p-3.5 rounded-xl bg-rose-950/60 border border-rose-500/50 text-rose-200 text-xs shadow-sm">
                     <div className="flex items-center gap-2">
-                      <XCircle className="h-5 w-5 text-rose-400 shrink-0" />
-                      <span className="font-bold text-sm text-rose-100 uppercase tracking-wide">
-                        Final Decision: DECLINED
+                      <XCircle className="h-4 w-4 text-rose-400 shrink-0" />
+                      <span className="font-bold text-xs text-rose-100 uppercase tracking-wide">
+                        Decision: DECLINED
                       </span>
                     </div>
-                    <p className="text-[11px] text-rose-300/80 pl-7 leading-relaxed">
-                      This application has been declined. The final underwriting decision is recorded in the operational audit trail and locked against further modification.
-                    </p>
                   </div>
                 )}
 
                 {data.application.status === "ADDITIONAL_INFO_REQUIRED" && (
-                  <div className="p-3.5 rounded-lg bg-blue-950/40 border border-blue-500/40 text-blue-200 text-xs space-y-2">
-                    <div className="flex items-center gap-2 text-blue-300 font-bold">
-                      <Clock className="h-4 w-4 text-blue-400 shrink-0" />
-                      <span>Additional Information Required</span>
-                    </div>
-                    <p className="text-[11px] text-slate-300 leading-relaxed">
-                      Final approval cannot proceed while customer information requests remain outstanding. Use the Information Requests section above to review responses and mark them resolved. Once all queries are resolved, the application will return to review status.
-                    </p>
+                  <div className="p-3 rounded-lg bg-blue-950/40 border border-blue-500/40 text-blue-200 text-xs flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-blue-400 shrink-0" />
+                    <span className="font-medium text-slate-200">Customer information requests pending resolution.</span>
                   </div>
                 )}
 
                 {data.application.status === "SUBMITTED" && (
-                  <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-400 space-y-2">
+                  <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-400">
                     <p className="text-[11px]">
-                      This application has not yet been placed under formal underwriting evaluation. Initiate review before recording a final decision.
+                      Initiate review before recording an underwriting decision.
                     </p>
                   </div>
                 )}

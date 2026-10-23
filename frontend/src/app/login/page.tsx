@@ -59,8 +59,26 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const p = new URLSearchParams(window.location.search).get("portal");
+      const search = new URLSearchParams(window.location.search);
+      const p = search.get("portal");
       setPortal(p);
+
+      const err = search.get("error");
+      if (err) {
+        if (err === "access_denied") {
+          setError("Access was denied during Google sign-in. Please try again.");
+        } else if (err === "database_unavailable") {
+          setError("The database service is currently in recovery mode or restarting. Please restart PostgreSQL service (Restart-Service postgresql-x64-18) to connect.");
+        } else if (err === "service_unavailable" || err === "auth_failed") {
+          setError("Authentication service is temporarily unavailable. Please try again later.");
+        } else if (err === "oauth_not_configured") {
+          setError("Google sign-in is not configured on the server. Please contact support.");
+        } else if (err === "token_exchange_failed" || err === "user_info_failed") {
+          setError("Could not complete Google authentication. Please try again.");
+        } else {
+          setError("Google authentication could not be completed. Please try again.");
+        }
+      }
     }
   }, []);
 

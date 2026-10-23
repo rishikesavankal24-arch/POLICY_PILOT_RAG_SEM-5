@@ -6,16 +6,8 @@ from sqlalchemy.orm import Session as DBSession
 from datetime import datetime, timedelta, timezone
 import bcrypt
 
-from app.db.session import SessionLocal
+from app.db.session import SessionLocal, get_db
 from app.db.models import Session as SessionModel, User, OnboardingStatus, Role
-
-# Helper to get the database session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 def generate_session_token() -> str:
     """Generate a secure random session token."""
