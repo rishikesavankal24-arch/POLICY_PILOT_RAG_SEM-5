@@ -17,6 +17,7 @@ from app.db.models import (
     ReviewReadinessState
 )
 from app.api.deps import require_verified_employee, check_employee_review_not_owner
+from app.services.rag.service import RAGService
 
 router = APIRouter()
 
@@ -140,6 +141,10 @@ class InformationRequestCreate(BaseModel):
     title: str
     description: str
     requested_document_type: Optional[str] = None
+
+class EmployeeAIQueryRequest(BaseModel):
+    application_id: UUID
+    query: str
 
 class TimelineItem(BaseModel):
     event: str
@@ -1408,6 +1413,60 @@ def get_employee_notifications(
 # M05.3 — Compliance Workspace Endpoints
 # ============================================================================
 
+@router.post("/ai/query")
+def employee_ai_query(
+    request: EmployeeAIQueryRequest,
+    current_user: User = Depends(require_verified_employee),
+    db: Session = Depends(get_db)
+):
+    """
+    Employee-facing RAG assistant for policy-grounded compliance review.
+
+    The assistant retrieves authoritative policy evidence for the application
+    context. It does not make, recommend, or persist a compliance decision.
+    Human employee review remains authoritative.
+    """
+    app = db.query(Application).filter(Application.id == request.application_id).first()
+    if not app:
+        raise HTTPException(status_code=404, detail="Application not found")
+
+    if app.status == ApplicationStatus.DRAFT.value:
+        raise HTTPException(
+            status_code=400,
+            detail="Draft applications cannot be queried through the compliance RAG assistant."
+        )
+
+    check_employee_review_not_owner(current_user, str(app.user_id))
+
+    query = request.query.strip()
+    if not query:
+        raise HTTPException(status_code=400, detail="Query cannot be empty.")
+
+    rag = RAGService()
+    rag_response = rag.query(
+        db=db,
+        query=query,
+        loan_type=app.loan_type.strip() if app.loan_type else None,
+    )
+
+    evidence_status = rag_response.get("evidence_status", "insufficient")
+    evidence = rag_response.get("evidence", [])
+
+    return {
+        "status": "SUCCESS",
+        "application_id": str(app.id),
+        "loan_type": app.loan_type,
+        "query": query,
+        "evidence_status": evidence_status,
+        "evidence": evidence,
+        "assistant_role": "POLICY_EVIDENCE_ASSISTANT",
+        "decision_authority": "HUMAN_EMPLOYEE_REVIEW",
+        "message": (
+            "Retrieved policy evidence is provided as decision-support material. "
+            "The employee remains responsible for the compliance review and final determination."
+        )
+    }
+
 @router.get("/applications/{application_id}/compliance", response_model=ComplianceWorkspaceResponse)
 def get_compliance_workspace(
     application_id: UUID,
@@ -1604,9 +1663,9 @@ def get_compliance_workspace(
         "information_requests": info_requests_data,
         "audit_events": audit_data,
         "ai_rag_boundary": {
-            "status": "M10_RESERVED",
-            "feature": "Adaptive RAG & Hybrid Retrieval",
-            "message": "Regulatory policy vector search, BM25 indexing, evidence reranking, and automated policy cross-referencing are scheduled for Module M10. Manual compliance review workspace is currently active."
+            "status": "RAG_ASSISTED_HUMAN_REVIEW",
+            "feature": "Policy Evidence Retrieval for Employee Review",
+            "message": "Policy-grounded RAG evidence retrieval is available as decision-support for employee compliance review. Automated compliance evaluation, approval or decline recommendations, and final decisioning remain outside this assistant. Human employee review remains authoritative."
         },
         "readiness": calculate_review_readiness(app, db)
     }
@@ -2126,5 +2185,9 @@ def get_employee_policy_document_file(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Failed to access policy document: {str(e)}"
         )
+
+
+
+
 
 

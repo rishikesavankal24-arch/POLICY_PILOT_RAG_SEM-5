@@ -193,55 +193,130 @@ class PolicyLifecycleService:
         actor_id: Optional[Union[str, UUID]] = None
     ) -> Policy:
         """
-        Activates a PUBLISHED policy.
+        Activates a policy version.
+
+        Supported flows:
+        - PUBLISHED -> ACTIVE: normal first activation.
+        - ACTIVE -> ACTIVE: switch the current active version to another
+          valid version while keeping the policy ACTIVE.
 
         Rules:
-        - Policy must exist and currently be in PUBLISHED status.
-        - PolicyVersion must exist and have a valid source document.
+        - Policy must exist.
+        - A normal activation requires the policy to be PUBLISHED.
+        - An ACTIVE policy may switch to a different PolicyVersion without
+          changing its lifecycle status.
+        - PolicyVersion must exist under the policy and have a valid source
+          document.
         - PolicyVersion must have effective_from.
         - If effective_to is present, effective_to >= effective_from.
         - Sets Policy.status = ACTIVE.
-        - Sets Policy.current_version_id = version.id.
+        - Sets Policy.current_version_id = target_version.id.
         """
         parsed_policy_id = parse_uuid(policy_id, "policy_id")
-        policy = db.query(Policy).filter(Policy.id == parsed_policy_id).first()
+        policy = db.query(Policy).filter(
+            Policy.id == parsed_policy_id
+        ).first()
+
         if not policy:
-            raise PolicyLifecycleNotFoundError(f"Policy '{parsed_policy_id}' not found.")
+            raise PolicyLifecycleNotFoundError(
+                f"Policy '{parsed_policy_id}' not found."
+            )
 
-        cls._verify_transition_allowed(policy.status, PolicyStatus.ACTIVE)
+        # ------------------------------------------------------------------
+        # Lifecycle transition handling
+        #
+        # Normal activation:
+        #     PUBLISHED -> ACTIVE
+        #
+        # Active version switch:
+        #     ACTIVE -> ACTIVE
+        #
+        # ACTIVE -> ACTIVE is intentionally handled here rather than being
+        # added to ALLOWED_TRANSITIONS, because it is a version-selection
+        # operation, not a new lifecycle state transition.
+        # ------------------------------------------------------------------
+        is_active_version_switch = policy.status == PolicyStatus.ACTIVE
 
+        if not is_active_version_switch:
+            cls._verify_transition_allowed(
+                policy.status,
+                PolicyStatus.ACTIVE
+            )
+
+        # ------------------------------------------------------------------
         # Locate candidate version
+        # ------------------------------------------------------------------
         if version_id:
             parsed_version_id = parse_uuid(version_id, "version_id")
+
             target_version = db.query(PolicyVersion).filter(
                 PolicyVersion.id == parsed_version_id,
                 PolicyVersion.policy_id == policy.id
             ).first()
+
             if not target_version:
-                raise PolicyLifecycleNotFoundError(f"PolicyVersion '{parsed_version_id}' not found for this policy.")
+                raise PolicyLifecycleNotFoundError(
+                    f"PolicyVersion '{parsed_version_id}' not found for this policy."
+                )
         else:
             target_version = db.query(PolicyVersion).filter(
                 PolicyVersion.policy_id == policy.id
-            ).order_by(PolicyVersion.created_at.desc()).first()
+            ).order_by(
+                PolicyVersion.created_at.desc()
+            ).first()
 
         if not target_version:
-            raise PolicyLifecycleValidationError("Cannot activate a policy without a valid PolicyVersion.")
+            raise PolicyLifecycleValidationError(
+                "Cannot activate a policy without a valid PolicyVersion."
+            )
 
+        # ------------------------------------------------------------------
+        # Active policy version switch must actually select a different
+        # version. Re-activating the already-current version is not a
+        # meaningful version switch.
+        # ------------------------------------------------------------------
+        if (
+            is_active_version_switch
+            and policy.current_version_id == target_version.id
+        ):
+            raise PolicyLifecycleConflictError(
+                "PolicyVersion is already the current active version."
+            )
+
+        # ------------------------------------------------------------------
         # Validate effective dates
+        # ------------------------------------------------------------------
         if not target_version.effective_from:
             raise PolicyLifecycleValidationError(
                 "Policy version cannot be activated without an effective_from date."
             )
-        if target_version.effective_to and target_version.effective_to < target_version.effective_from:
+
+        if (
+            target_version.effective_to
+            and target_version.effective_to < target_version.effective_from
+        ):
             raise PolicyLifecycleValidationError(
                 "effective_to date cannot be earlier than effective_from date."
             )
 
+        # ------------------------------------------------------------------
         # Validate source document presence
-        if not target_version.file_hash or not target_version.file_url or not target_version.file_size_bytes or target_version.file_size_bytes <= 0:
+        # ------------------------------------------------------------------
+        if (
+            not target_version.file_hash
+            or not target_version.file_url
+            or not target_version.file_size_bytes
+            or target_version.file_size_bytes <= 0
+        ):
             raise PolicyLifecycleValidationError(
-                "Policy version cannot be activated because its source document is invalid or missing."
+                "Policy version cannot be activated because its source "
+                "document is invalid or missing."
             )
+
+        # ------------------------------------------------------------------
+        # Activate / switch current version
+        # ------------------------------------------------------------------
+        previous_version_id = policy.current_version_id
 
         policy.status = PolicyStatus.ACTIVE
         policy.current_version_id = target_version.id
@@ -250,16 +325,26 @@ class PolicyLifecycleService:
         db.commit()
         db.refresh(policy)
 
+        # ------------------------------------------------------------------
+        # Audit event
+        # ------------------------------------------------------------------
         cls._log_audit_event(
             event_type="POLICY_ACTIVATED",
             policy_id=policy.id,
             actor_id=parse_uuid(actor_id, "actor_id") if actor_id else None,
             version_id=target_version.id,
-            details={"version_number": target_version.version_number}
+            details={
+                "version_number": target_version.version_number,
+                "previous_version_id": (
+                    str(previous_version_id)
+                    if previous_version_id
+                    else None
+                ),
+                "version_switch": is_active_version_switch
+            }
         )
 
         return policy
-
     @classmethod
     def supersede_policy(
         cls,

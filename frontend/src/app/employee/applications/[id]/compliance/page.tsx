@@ -27,6 +27,7 @@ import {
   HelpCircle,
   Send,
   MessageSquare,
+  Sparkles,
   ClipboardList,
   Save,
   CheckSquare,
@@ -147,6 +148,25 @@ interface ReviewReadinessData {
   updated_by_name: string | null;
 }
 
+interface EmployeeRAGEvidence {
+  text: string;
+  page?: number | null;
+  source?: string | null;
+  [key: string]: unknown;
+}
+
+interface EmployeeRAGResponse {
+  status: string;
+  application_id: string;
+  loan_type: string;
+  query: string;
+  evidence_status: string;
+  evidence: EmployeeRAGEvidence[];
+  assistant_role: string;
+  decision_authority: string;
+  message: string;
+}
+
 interface ComplianceWorkspaceData {
   application: {
     id: string;
@@ -216,6 +236,12 @@ export default function EmployeeComplianceWorkspacePage() {
   const [isMarkingReady, setIsMarkingReady] = useState(false);
   const [isResettingReadiness, setIsResettingReadiness] = useState(false);
   const [readinessActionError, setReadinessActionError] = useState<string | null>(null);
+
+  // Employee Policy Evidence Assistant state
+  const [ragQuery, setRagQuery] = useState("");
+  const [ragResponse, setRagResponse] = useState<EmployeeRAGResponse | null>(null);
+  const [isRagQuerying, setIsRagQuerying] = useState(false);
+  const [ragError, setRagError] = useState<string | null>(null);
 
   const formatINR = (val?: number) => {
     if (val === undefined || val === null) return "₹0";
@@ -401,6 +427,45 @@ export default function EmployeeComplianceWorkspacePage() {
     }
   };
 
+  // Query the shared RAG service as employee decision-support.
+  // The backend derives application context and enforces employee authorization.
+  const handleRAGQuery = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+
+    if (!id || !ragQuery.trim()) return;
+
+    try {
+      setIsRagQuerying(true);
+      setRagError(null);
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+      const res = await fetch(`${apiUrl}/api/employee/ai/query`, {
+        method: "POST",
+        headers: getHeaders(),
+        credentials: "include",
+        body: JSON.stringify({
+          application_id: id,
+          query: ragQuery.trim()
+        })
+      });
+
+      const responseBody = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(
+          responseBody.detail || `Policy evidence query failed (HTTP ${res.status})`
+        );
+      }
+
+      setRagResponse(responseBody as EmployeeRAGResponse);
+    } catch (err: any) {
+      setRagResponse(null);
+      setRagError(err.message || "Unable to retrieve policy evidence.");
+    } finally {
+      setIsRagQuerying(false);
+    }
+  };
+
   // Mark review ready
   const handleMarkReviewReady = async () => {
     if (!id) return;
@@ -557,7 +622,7 @@ export default function EmployeeComplianceWorkspacePage() {
 
   return (
     <EmployeeLayout>
-      <div className="space-y-6 pb-12">
+      <div className="max-w-7xl mx-auto space-y-6 pb-12">
         {/* Breadcrumb & Top Navigation */}
         <div className="flex items-center gap-2">
           <Link
@@ -686,30 +751,168 @@ export default function EmployeeComplianceWorkspacePage() {
               </div>
             </div>
 
-            {/* Compliance Review Banner */}
-            <div className="p-4 bg-white border border-slate-200 rounded-lg shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
+            {/* M10 Architectural Boundary Notice Banner */}
+            <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-950/40 via-slate-900 to-blue-950/40 border border-emerald-500/30 shadow-sm flex items-start gap-3.5">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+                <Sparkles className="h-4 w-4" />
+              </div>
+              <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <h2 className="text-sm font-bold text-slate-900 tracking-tight font-sans">
-                    Compliance Review
-                  </h2>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                    ACTIVE
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-mono font-bold tracking-wider uppercase">
+                    MODULE M10: RAG-ASSISTED HUMAN COMPLIANCE REVIEW
                   </span>
                 </div>
-              </div>
-
-              <div className="shrink-0">
-                <Link
-                  href="/employee/policies"
-                  target="_blank"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-semibold shadow-2xs transition-colors"
-                >
-                  <BookOpen className="h-3.5 w-3.5" />
-                  <span>View Policy Catalogue</span>
-                </Link>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Policy-grounded RAG evidence retrieval is now available to support the employee&apos;s compliance review. The assistant uses the shared PolicyPilot retrieval system to surface relevant policy evidence for the current application. Automated compliance evaluation, approval/decline recommendations, and final decisioning remain outside this assistant. Checklist evaluations and notes are recorded directly to the internal audit trail.
+                </p>
+                <div className="pt-1.5 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    Human verification + policy evidence assistance active
+                  </span>
+                  <Link
+                    href="/employee/policies"
+                    target="_blank"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded text-xs font-medium transition-colors"
+                  >
+                    <BookOpen className="h-3.5 w-3.5" />
+                    <span>View Policy Catalog</span>
+                  </Link>
+                </div>
               </div>
             </div>
+
+            {/* Employee Policy Evidence Assistant */}
+            <section className="mb-6 bg-[#0F172A] border border-emerald-500/30 rounded-xl p-5 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                  <Sparkles className="h-5 w-5 text-emerald-400" />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="text-sm font-bold text-white">
+                      Employee Policy Evidence Assistant
+                    </h2>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono font-bold text-emerald-300 uppercase">
+                      RAG Decision Support
+                    </span>
+                  </div>
+
+                  <p className="mt-1 text-xs text-slate-400 leading-relaxed">
+                    Ask policy-related questions about this application. The assistant
+                    retrieves policy evidence from the shared PolicyPilot RAG system
+                    using the application&apos;s authoritative loan context.
+                  </p>
+
+                  <div className="mt-3 p-3 rounded-lg bg-amber-950/30 border border-amber-600/30">
+                    <p className="text-[11px] text-amber-200 leading-relaxed">
+                      <strong>Human review remains authoritative.</strong> Retrieved
+                      evidence is decision-support material only. This assistant does
+                      not approve, decline, score, or make a compliance determination
+                      for the application.
+                    </p>
+                  </div>
+
+                  {ragError && (
+                    <div className="mt-3 p-3 rounded-lg bg-rose-950/60 border border-rose-600/40 text-rose-200 text-xs">
+                      {ragError}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleRAGQuery} className="mt-4">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={ragQuery}
+                        onChange={(e) => setRagQuery(e.target.value)}
+                        placeholder="Ask about applicable policy requirements, documents, limits, or procedures..."
+                        className="flex-1 px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-400"
+                        disabled={isRagQuerying}
+                      />
+
+                      <button
+                        type="submit"
+                        disabled={isRagQuerying || !ragQuery.trim()}
+                        className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-600/40 text-white rounded-lg text-xs font-bold inline-flex items-center gap-1.5 transition-colors disabled:cursor-not-allowed"
+                      >
+                        {isRagQuerying ? (
+                          <>
+                            <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>Searching...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Send className="h-3.5 w-3.5" />
+                            <span>Ask Policy</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+
+                  {ragResponse && (
+                    <div className="mt-4 space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div>
+                          <p className="text-[10px] font-mono uppercase tracking-wider text-slate-500">
+                            Policy Evidence Result
+                          </p>
+                          <p className="text-xs text-slate-300 mt-1">
+                            {ragResponse.query}
+                          </p>
+                        </div>
+
+                        <span
+                          className={`shrink-0 px-2 py-1 rounded-full text-[10px] font-bold uppercase ${
+                            ragResponse.evidence_status.toLowerCase() === "sufficient"
+                              ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
+                              : "bg-amber-500/10 text-amber-300 border border-amber-500/20"
+                          }`}
+                        >
+                          {ragResponse.evidence_status}
+                        </span>
+                      </div>
+
+                      {ragResponse.evidence.length === 0 ? (
+                        <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-400">
+                          No policy evidence was retrieved for this query.
+                        </div>
+                      ) : (
+                        <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+                          {ragResponse.evidence.map((item, index) => (
+                            <div
+                              key={`${item.source || "evidence"}-${item.page ?? "na"}-${index}`}
+                              className="p-3 rounded-lg bg-slate-900 border border-slate-800"
+                            >
+                              <div className="flex items-center justify-between gap-2 mb-2">
+                                <span className="text-[10px] font-mono font-bold uppercase text-emerald-400">
+                                  Evidence {index + 1}
+                                </span>
+
+                                <div className="flex items-center gap-2 text-[10px] text-slate-500 font-mono">
+                                  {item.source && <span>{item.source}</span>}
+                                  {item.page != null && <span>Page {item.page}</span>}
+                                </div>
+                              </div>
+
+                              <p className="text-xs text-slate-200 leading-relaxed whitespace-pre-wrap">
+                                {item.text}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="p-3 rounded-lg bg-slate-900/70 border border-slate-800">
+                        <p className="text-[11px] text-slate-400 leading-relaxed">
+                          {ragResponse.message}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
 
             {/* M05.4 Review Readiness & Decision Preparation Section */}
             {data.readiness && (
@@ -721,6 +924,9 @@ export default function EmployeeComplianceWorkspacePage() {
                       <h2 className="text-xs font-bold uppercase tracking-wider text-white">
                         Review Readiness & Decision Preparation
                       </h2>
+                      <p className="text-[11px] text-slate-400">
+                        Operational gate before compliance assessment
+                      </p>
                     </div>
                   </div>
 
@@ -826,15 +1032,21 @@ export default function EmployeeComplianceWorkspacePage() {
                         <li key={idx}>{reason}</li>
                       ))}
                     </ul>
+                    <p className="text-[11px] text-amber-400/80 italic pt-1 border-t border-amber-500/20">
+                      Resolution guidance: Verify all uploaded documents, complete each compliance checklist item evaluation, and resolve all applicant queries to unlock formal review declaration.
+                    </p>
                   </div>
                 ) : (
-                  <div className="p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/40">
+                  <div className="p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/40 space-y-1.5">
                     <div className="flex items-center gap-2 text-emerald-300">
                       <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
                       <span className="text-xs font-bold uppercase tracking-wider">
                         All Operational Verification Prerequisites Satisfied
                       </span>
                     </div>
+                    <p className="text-xs text-emerald-200/90 leading-relaxed">
+                      All verification documents have been accepted, all 5 compliance checklist points are confirmed, and no open customer queries remain. This application is qualified for formal compliance declaration.
+                    </p>
                   </div>
                 )}
 
@@ -848,7 +1060,8 @@ export default function EmployeeComplianceWorkspacePage() {
                       </span>
                     ) : (
                       <span>
-                        {data.readiness.updated_at ? `Last updated: ${formatDateTime(data.readiness.updated_at)}` : ""}
+                        Dynamic readiness calculation active
+                        {data.readiness.updated_at && ` • Last updated: ${formatDateTime(data.readiness.updated_at)}`}
                       </span>
                     )}
                   </div>
@@ -983,6 +1196,9 @@ export default function EmployeeComplianceWorkspacePage() {
                         Submitted Verification Documents ({data.documents.length})
                       </h2>
                     </div>
+                    <span className="text-[11px] text-slate-400">
+                      Inspect uploaded evidence files
+                    </span>
                   </div>
 
                   {sortedDocuments.length === 0 ? (
@@ -1070,6 +1286,9 @@ export default function EmployeeComplianceWorkspacePage() {
                         Compliance Verification Checklist ({data.checklist_items.length} Items)
                       </h2>
                     </div>
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      Compliance Review Standards
+                    </span>
                   </div>
 
                   {itemSaveError && (

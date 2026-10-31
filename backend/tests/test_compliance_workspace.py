@@ -449,3 +449,128 @@ def test_compliance_workspace_timestamps_and_customer_notes_isolation(db_session
     assert "readiness" not in cust_data
     # Content of the internal note must not leak into customer response
     assert "CONFIDENTIAL INTERNAL NOTE" not in str(cust_data)
+
+def test_employee_ai_query_returns_policy_evidence_without_decisioning(db_session, monkeypatch):
+    customer = create_user_helper(db_session, "rag_customer", role=Role.CUSTOMER.value)
+    employee = create_user_helper(db_session, "rag_employee", role=Role.EMPLOYEE.value)
+
+    app_obj = Application(
+        user_id=customer.id,
+        loan_type="Home Loan",
+        requested_amount=3500000,
+        tenure=240,
+        purpose="Residential purchase",
+        status=ApplicationStatus.SUBMITTED.value
+    )
+    db_session.add(app_obj)
+    db_session.commit()
+    db_session.refresh(app_obj)
+
+    emp_token = create_user_session(db_session, employee.id)
+
+    expected_rag_response = {
+        "evidence_status": "sufficient",
+        "evidence": [
+            {
+                "text": "Home loan policy evidence for employee review.",
+                "page": 12,
+                "source": "test_policy.pdf"
+            }
+        ]
+    }
+
+    def fake_query(self, query, policy_id=None, institution=None, jurisdiction=None, loan_type=None, db=None):
+        assert query == "What documents are required for this home loan?"
+        assert loan_type == "Home Loan"
+        return expected_rag_response
+
+    monkeypatch.setattr(
+        "app.api.employee.RAGService.query",
+        fake_query
+    )
+
+    resp = client.post(
+        "/api/employee/ai/query",
+        json={
+            "application_id": str(app_obj.id),
+            "query": "What documents are required for this home loan?"
+        },
+        headers={"Authorization": f"Bearer {emp_token}"}
+    )
+
+    assert resp.status_code == 200
+
+    body = resp.json()
+    assert body["status"] == "SUCCESS"
+    assert body["application_id"] == str(app_obj.id)
+    assert body["loan_type"] == "Home Loan"
+    assert body["evidence_status"] == "sufficient"
+    assert body["evidence"] == expected_rag_response["evidence"]
+    assert body["assistant_role"] == "POLICY_EVIDENCE_ASSISTANT"
+    assert body["decision_authority"] == "HUMAN_EMPLOYEE_REVIEW"
+    assert "final determination" in body["message"]
+
+def test_customer_cannot_use_employee_ai_query(db_session):
+    customer = create_user_helper(
+        db_session,
+        "rag_customer_denied",
+        role=Role.CUSTOMER.value
+    )
+
+    app_obj = Application(
+        user_id=customer.id,
+        loan_type="Home Loan",
+        requested_amount=3500000,
+        tenure=240,
+        purpose="Residential purchase",
+        status=ApplicationStatus.SUBMITTED.value
+    )
+    db_session.add(app_obj)
+    db_session.commit()
+    db_session.refresh(app_obj)
+
+    customer_token = create_user_session(db_session, customer.id)
+
+    resp = client.post(
+        "/api/employee/ai/query",
+        json={
+            "application_id": str(app_obj.id),
+            "query": "What documents are required?"
+        },
+        headers={"Authorization": f"Bearer {customer_token}"}
+    )
+
+    assert resp.status_code == 403
+
+def test_employee_cannot_use_ai_query_for_own_application(db_session):
+    employee = create_user_helper(
+        db_session,
+        "rag_emp_owner",
+        role=Role.EMPLOYEE.value
+    )
+
+    own_app = Application(
+        user_id=employee.id,
+        loan_type="Personal Loan",
+        requested_amount=500000,
+        tenure=36,
+        purpose="Home Renovation",
+        status=ApplicationStatus.SUBMITTED.value
+    )
+    db_session.add(own_app)
+    db_session.commit()
+    db_session.refresh(own_app)
+
+    emp_token = create_user_session(db_session, employee.id)
+
+    resp = client.post(
+        "/api/employee/ai/query",
+        json={
+            "application_id": str(own_app.id),
+            "query": "What documents are required for this loan?"
+        },
+        headers={"Authorization": f"Bearer {emp_token}"}
+    )
+
+    assert resp.status_code == 403
+    assert "Conflict of interest" in resp.json()["detail"]

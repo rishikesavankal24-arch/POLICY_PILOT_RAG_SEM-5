@@ -5,7 +5,7 @@ Tests verified employee policy discovery, search, filtering, detail projection,
 version history, secure document streaming, active-only visibility constraints,
 and strict read-only RBAC enforcement.
 """
-
+from tests.pdf_fixtures import make_test_pdf_bytes
 import pytest
 import uuid
 from datetime import datetime, timezone
@@ -58,31 +58,6 @@ def _create_user(db, role: str, onboarding_status: str = "COMPLETED") -> tuple[U
     db.commit()
 
     return user, token
-
-
-def make_test_pdf_bytes(page_count: int = 1, text: str = "Policy Document") -> bytes:
-    """Helper to generate minimal valid PDF bytes."""
-    lines = [
-        b"%PDF-1.4",
-        b"1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj",
-        (f"2 0 obj<</Type/Pages/Count {page_count}/Kids[" + " ".join(f"{3+i} 0 R" for i in range(page_count)) + "]>>endobj").encode("ascii")
-    ]
-    for i in range(page_count):
-        lines.append(f"{3+i} 0 obj<</Type/Page/Parent 2 0 R>>endobj".encode("ascii"))
-    lines.extend([
-        b"xref",
-        f"0 {3+page_count}".encode("ascii"),
-        b"0000000000 65535 f"
-    ])
-    for _ in range(2 + page_count):
-        lines.append(b"0000000050 00000 n")
-    lines.extend([
-        f"trailer<</Size {3+page_count}/Root 1 0 R>>".encode("ascii"),
-        b"startxref",
-        b"120",
-        b"%%EOF"
-    ])
-    return b"\n".join(lines)
 
 
 # ==============================================================================

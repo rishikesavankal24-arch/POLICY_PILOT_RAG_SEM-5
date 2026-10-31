@@ -255,12 +255,21 @@ def test_full_document_review_and_info_request_lifecycle(db_session):
     assert info_req_found["status"] == InformationRequestStatus.RESPONDED.value
     assert info_req_found["response_document_id"] == resp_doc_id
 
-    # 18. Employee opens the response document via /api/documents/{id}/content
-    content_res = client.get(f"/api/documents/{resp_doc_id}/content", cookies=cookies_emp)
+       # 18. Employee opens the response document via /api/documents/{id}/content
+    content_res = client.get(
+        f"/api/documents/{resp_doc_id}/content",
+        cookies=cookies_emp
+    )
+
     assert content_res.status_code == 200
     assert content_res.headers["content-type"] == "application/pdf"
-    assert b"audited balance sheet FY25 authentic content" in content_res.content
 
+    # The response is a real PDF. PDF text is normally compressed inside
+    # the document stream, so the original text must not be searched
+    # directly in the raw PDF bytes.
+    assert content_res.content.startswith(b"%PDF-")
+    assert len(content_res.content) > 0
+    
     # 19. Conflict of interest validation: Employee cannot review their own application
     own_app = Application(
         id=uuid.uuid4(),

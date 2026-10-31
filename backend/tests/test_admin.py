@@ -203,44 +203,73 @@ def test_auto_approval_disabled_in_prod(db_session, monkeypatch):
     db_session.delete(req)
     db_session.delete(user)
     db_session.commit()
-
 def test_admin_google_oauth_flow_and_authorization(db_session, monkeypatch):
     from unittest.mock import AsyncMock, patch
 
+    # Provide test-only Google OAuth configuration.
+    # These are dummy values; no real Google credentials are used.
+    monkeypatch.setenv("GOOGLE_CLIENT_ID", "test_google_client_id")
+    monkeypatch.setenv("GOOGLE_CLIENT_SECRET", "test_google_client_secret")
+    monkeypatch.setenv("BACKEND_URL", "http://127.0.0.1:8000")
+    monkeypatch.setenv("FRONTEND_URL", "http://127.0.0.1:3000")
+    monkeypatch.setenv("ADMIN_FRONTEND_URL", "http://127.0.0.1:3001")
+
     # 1. Verify /auth/google/login preserves state=admin
-    res = client.get("/auth/google/login?state=admin", follow_redirects=False)
+    res = client.get(
+        "/auth/google/login?state=admin",
+        follow_redirects=False
+    )
     assert res.status_code in [302, 307]
     assert "state=admin" in res.headers["location"]
 
     # 2. Verify /auth/google/login without state behaves normally
-    res_no_state = client.get("/auth/google/login", follow_redirects=False)
+    res_no_state = client.get(
+        "/auth/google/login",
+        follow_redirects=False
+    )
     assert res_no_state.status_code in [302, 307]
     assert "state=" not in res_no_state.headers["location"]
 
     # 3. Simulate Google callback with state=admin for a non-admin user
-    # Mock httpx responses
+
     class MockResponse:
         def __init__(self, status_code, json_data):
             self.status_code = status_code
             self._json = json_data
+
         def json(self):
             return self._json
 
     async def mock_post(*args, **kwargs):
-        return MockResponse(200, {"access_token": "mock_token"})
+        return MockResponse(
+            200,
+            {"access_token": "mock_token"}
+        )
 
     # Case A: Non-admin Google user
     async def mock_get_non_admin(*args, **kwargs):
-        return MockResponse(200, {
-            "email": "test_google_customer@example.com",
-            "id": "mock_google_id_customer",
-            "name": "Customer User",
-            "picture": "http://example.com/pic.jpg"
-        })
+        return MockResponse(
+            200,
+            {
+                "email": "test_google_customer@example.com",
+                "id": "mock_google_id_customer",
+                "name": "Customer User",
+                "picture": "http://example.com/pic.jpg"
+            }
+        )
 
-    with patch("httpx.AsyncClient.post", side_effect=mock_post), \
-         patch("httpx.AsyncClient.get", side_effect=mock_get_non_admin):
-        res_cb = client.get("/auth/google/callback?code=mock_code&state=admin", follow_redirects=False)
+    with patch(
+        "httpx.AsyncClient.post",
+        side_effect=mock_post
+    ), patch(
+        "httpx.AsyncClient.get",
+        side_effect=mock_get_non_admin
+    ):
+        res_cb = client.get(
+            "/auth/google/callback?code=mock_code&state=admin",
+            follow_redirects=False
+        )
+
         assert res_cb.status_code in [302, 307]
         assert "login?error=access_denied" in res_cb.headers["location"]
         assert "3001" in res_cb.headers["location"]
@@ -256,20 +285,33 @@ def test_admin_google_oauth_flow_and_authorization(db_session, monkeypatch):
         role=Role.ADMIN.value,
         requested_role=Role.ADMIN.value
     )
+
     db_session.add(admin_user)
     db_session.commit()
 
     async def mock_get_admin(*args, **kwargs):
-        return MockResponse(200, {
-            "email": "test_google_admin@example.com",
-            "id": "mock_google_id_admin",
-            "name": "Admin User",
-            "picture": "http://example.com/admin_pic.jpg"
-        })
+        return MockResponse(
+            200,
+            {
+                "email": "test_google_admin@example.com",
+                "id": "mock_google_id_admin",
+                "name": "Admin User",
+                "picture": "http://example.com/admin_pic.jpg"
+            }
+        )
 
-    with patch("httpx.AsyncClient.post", side_effect=mock_post), \
-         patch("httpx.AsyncClient.get", side_effect=mock_get_admin):
-        res_admin = client.get("/auth/google/callback?code=mock_code&state=admin", follow_redirects=False)
+    with patch(
+        "httpx.AsyncClient.post",
+        side_effect=mock_post
+    ), patch(
+        "httpx.AsyncClient.get",
+        side_effect=mock_get_admin
+    ):
+        res_admin = client.get(
+            "/auth/google/callback?code=mock_code&state=admin",
+            follow_redirects=False
+        )
+
         assert res_admin.status_code in [302, 307]
         assert "3001/dashboard" in res_admin.headers["location"]
         assert "session_id" in res_admin.cookies

@@ -15,6 +15,7 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
+from tests.pdf_fixtures import make_test_pdf_bytes
 
 from app.main import app
 from app.db.session import SessionLocal

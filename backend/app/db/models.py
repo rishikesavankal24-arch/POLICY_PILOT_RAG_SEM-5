@@ -4,6 +4,7 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import uuid
 import enum
+from pgvector.sqlalchemy import Vector
 from .session import Base
 
 class OnboardingStatus(str, enum.Enum):
@@ -419,5 +420,46 @@ class PolicyApplicability(Base):
 
     # Relationships
     policy = relationship("Policy", foreign_keys=[policy_id], back_populates="applicabilities")
+
+
+class PolicyChunk(Base):
+    __tablename__ = "policy_chunks"
+
+    id = Column(String, primary_key=True)  # chunk_id
+    policy_id = Column(UUID(as_uuid=True), ForeignKey("policies.id", ondelete="CASCADE"), nullable=False, index=True)
+    policy_version_id = Column(UUID(as_uuid=True), ForeignKey("policy_versions.id", ondelete="CASCADE"), nullable=False, index=True)
+
+    chunk_index = Column(Integer, nullable=False, default=0)
+    part_index = Column(Integer, nullable=False, default=0)
+    unit_index = Column(Integer, nullable=False, default=0)
+
+    text = Column(String, nullable=False)
+    document_id = Column(String, nullable=False)
+    document = Column(String, nullable=False)
+    source = Column(String, nullable=False)
+    source_type = Column(String, nullable=False, default="policy_pdf")
+    source_url = Column(String, nullable=True)
+
+    chapter = Column(String, nullable=True)
+    section = Column(String, nullable=True)
+    page = Column(Integer, nullable=True)
+    location = Column(String, nullable=True)
+
+    version_number = Column(String, nullable=True)
+    institution = Column(String, nullable=True, index=True)
+    jurisdiction = Column(String, nullable=True, index=True)
+    applicability_json = Column(String, nullable=True)
+
+    effective_from = Column(DateTime(timezone=True), nullable=True)
+    effective_to = Column(DateTime(timezone=True), nullable=True)
+    file_hash = Column(String, nullable=True)
+
+    embedding = Column(Vector(384), nullable=True)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    policy = relationship("Policy", foreign_keys=[policy_id], backref="chunks")
+    policy_version = relationship("PolicyVersion", foreign_keys=[policy_version_id], backref="chunks")
 
 

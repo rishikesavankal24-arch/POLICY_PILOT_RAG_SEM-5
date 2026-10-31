@@ -6,6 +6,9 @@ from datetime import datetime, timezone
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 import uuid
+from app.services.rag.service import RAGService
+import logging
+logger = logging.getLogger(__name__)
 
 from app.db.models import (
     User, EmployeeRequest, EmployeeRequestStatus, Role, OnboardingStatus, Application,
@@ -610,6 +613,21 @@ def activate_policy_endpoint(
             version_id=version_id,
             actor_id=current_user.id
         )
+
+        try:
+            RAGService().ingest_active_policy(
+                db=db,
+                policy_id=str(policy.id),
+            )
+        except Exception:
+            logger.exception(
+                "RAG indexing failed after policy activation: "
+                "policy_id=%s version_id=%s",
+                str(policy.id),
+                str(policy.current_version_id)
+                if policy.current_version_id
+                else None,
+            )
         return PolicyLifecycleResponse(
             id=str(policy.id),
             policy_code=policy.policy_code,

@@ -1,13 +1,20 @@
 import io
-import pypdf
+
+from reportlab.pdfgen import canvas
+
 
 def make_test_pdf_bytes(page_count: int = 1, text: str = None) -> bytes:
-    """Generate structurally valid PDF bytes with the specified number of pages and optional embedded text."""
-    writer = pypdf.PdfWriter()
-    for _ in range(page_count):
-        writer.add_blank_page(width=100, height=100)
-    if text:
-        writer.add_metadata({"/Title": text})
+    """Generate a valid PDF with optionally extractable page text."""
     buf = io.BytesIO()
-    writer.write(buf)
+
+    pdf = canvas.Canvas(buf, pagesize=(100, 100))
+
+    for _ in range(page_count):
+        if text:
+            pdf.drawString(10, 50, text)
+
+        pdf.showPage()
+
+    pdf.save()
+
     return buf.getvalue()
