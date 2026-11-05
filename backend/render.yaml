@@ -1,0 +1,77 @@
+# Render Blueprint — PolicyPilot Backend
+#
+# PLACEMENT NOTE:
+#   For Render to auto-detect this as a Blueprint, it must be at the
+#   repository root. This file lives in backend/ as a source-of-truth
+#   reference. When creating the Render service you can either:
+#     (a) Copy this file to the repo root before connecting Render, OR
+#     (b) Create the service manually in the Render dashboard using the
+#         settings below as your reference — no auto-detection needed.
+#   Option (b) is recommended for a first deployment.
+#
+# See: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: policypilot-backend
+    runtime: python
+    # Backend source lives in the backend/ subdirectory of the repo.
+    rootDir: backend
+    # Python 3.11 satisfies requires-python >= 3.10 and is well-supported
+    # on Render. Render reads PYTHON_VERSION from the env block below.
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # Free plan — never change this to a paid plan.
+    plan: free
+    # Render uses this path to decide whether the service is healthy.
+    healthCheckPath: /health
+    envVars:
+      # ------------------------------------------------------------------ #
+      # PYTHON RUNTIME                                                       #
+      # ------------------------------------------------------------------ #
+      - key: PYTHON_VERSION
+        value: "3.11.0"
+
+      # ------------------------------------------------------------------ #
+      # REQUIRED — set values securely in the Render dashboard.             #
+      # sync: false means the value is NOT stored here; you enter it once   #
+      # in the Render UI and it is stored encrypted by Render.              #
+      # ------------------------------------------------------------------ #
+      - key: DATABASE_URL
+        sync: false          # Supabase PostgreSQL URL with ?sslmode=require
+      - key: AUTH_SECRET
+        sync: false          # Long random string for OTP hashing salt
+      - key: FRONTEND_URL
+        sync: false          # e.g. https://policypilot.vercel.app
+      - key: ADMIN_FRONTEND_URL
+        sync: false          # e.g. https://policypilot-admin.vercel.app
+      - key: BACKEND_URL
+        sync: false          # e.g. https://policypilot-backend.onrender.com
+
+      # ------------------------------------------------------------------ #
+      # RECOMMENDED — safe to commit as-is.                                 #
+      # ------------------------------------------------------------------ #
+      - key: ENVIRONMENT
+        value: production
+      - key: SMS_PROVIDER
+        value: mock          # OTPs printed to server logs; no external SMS cost
+
+      # ------------------------------------------------------------------ #
+      # OPTIONAL — only needed if you configure Google OAuth.               #
+      # Leave unset to skip Google login (email/password login still works)  #
+      # ------------------------------------------------------------------ #
+      # - key: GOOGLE_CLIENT_ID
+      #   sync: false
+      # - key: GOOGLE_CLIENT_SECRET
+      #   sync: false
+
+      # ------------------------------------------------------------------ #
+      # RAG TUNING — defaults are correct; only change if you know why.     #
+      # ------------------------------------------------------------------ #
+      - key: RAG_EMBEDDING_MODEL
+        value: sentence-transformers/all-MiniLM-L6-v2
+      - key: RAG_DEFAULT_TOP_K
+        value: "5"
+      - key: RAG_SECOND_TOP_K
+        value: "20"
+
