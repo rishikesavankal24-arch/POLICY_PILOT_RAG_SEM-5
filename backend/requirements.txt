@@ -1,0 +1,19 @@
+# PolicyPilot Backend — pip-compatible requirements
+# Pinned to exact versions from uv.lock to guarantee reproducible deployment
+# matching the locally verified environment.
+
+fastapi==0.141.1
+uvicorn[standard]==0.53.0
+sqlalchemy[asyncio]==2.0.54
+asyncpg==0.31.0
+psycopg2-binary==2.9.13
+python-dotenv==1.2.3
+pydantic==2.13.5
+httpx==0.28.1
+alembic==1.20.0
+bcrypt==5.0.0
+python-multipart==0.0.32
+requests==2.34.2
+pypdf==6.19.0
+sentence-transformers==6.1.0
+pgvector==0.5.1
