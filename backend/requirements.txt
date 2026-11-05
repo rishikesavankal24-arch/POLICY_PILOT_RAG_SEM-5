@@ -1,7 +1,9 @@
-# PolicyPilot Backend — pip-compatible requirements
-# Pinned to exact versions from uv.lock to guarantee reproducible deployment
-# matching the locally verified environment.
+# PolicyPilot Backend — pip-compatible requirements for Render free tier
+# Pinned to exact CPU-only versions to avoid downloading multi-gigabyte
+# CUDA/NVIDIA/Triton packages that cause Render build OOM errors.
+--extra-index-url https://download.pytorch.org/whl/cpu
 
+torch==2.14.1+cpu
 fastapi==0.141.1
 uvicorn[standard]==0.53.0
 sqlalchemy[asyncio]==2.0.54
